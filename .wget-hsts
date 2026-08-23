@@ -1,0 +1,7 @@
+# HSTS 1.0 Known Hosts database for GNU Wget.
+# Edit at your own risk.
+# <hostname>	<port>	<incl. subdomains>	<created>	<max-age>
+mirror.cachyos.org	0	0	1785037992	31536000
+raw.githubusercontent.com	0	0	1785841469	31536000
+api.steampp.net	0	1	1784963935	63072000
+github.com	0	1	1785810833	31536000

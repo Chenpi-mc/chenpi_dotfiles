@@ -1,0 +1,34 @@
+{
+  "requests": 1286,
+  "prompt_tokens": 239028979,
+  "completion_tokens": 1454874,
+  "total_tokens": 240483853,
+  "conversation_tokens": 8530144,
+  "cache_read_tokens": 16694016,
+  "cache_write_tokens": 0,
+  "reasoning_tokens": 154074,
+  "last_usage": {
+    "prompt_tokens": 15943,
+    "completion_tokens": 6469,
+    "total_tokens": 22412,
+    "prompt_cache_hit_tokens": 15872,
+    "prompt_cache_miss_tokens": 71,
+    "prompt_tokens_details": {
+      "cached_tokens": 15872
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5423
+    },
+    "cache_read_tokens": 15872,
+    "reasoning_tokens": 5423,
+    "cache_reported": true
+  },
+  "last_conversation_usage": {
+    "prompt_tokens": 540003,
+    "completion_tokens": 2603,
+    "total_tokens": 542606,
+    "cache_read_tokens": 538624,
+    "reasoning_tokens": 139,
+    "cache_reported": true
+  }
+}

@@ -1,0 +1,338 @@
+@import "colors.css";
+
+/* =========================================================
+ * waybar 样式 v3
+ * 独立色块风格：每个模块一个实色圆角块，模块间留间距
+ * 参考 brunoanesio/waybar-config 的层次感 + matugen 配色
+ * ========================================================= */
+
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrainsMonoNL Nerd Font Propo", "LXGW WenKai Screen", "Font Awesome 7 Free";
+    font-size: 16px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: transparent;
+    color: @on_surface;
+}
+
+/* 悬浮提示 */
+tooltip {
+    background: @surface_container;
+    border: 1px solid @outline;
+    border-radius: 4px;
+}
+
+tooltip label {
+    color: @on_surface;
+    font-size: 15px;
+    padding: 6px 10px;
+}
+
+/* ---------- 左侧：工作区 + 窗口 ---------- */
+
+#workspaces button {
+    padding: 2px 10px;
+    margin: 3px 2px;
+    border-radius: 999px;
+    background: @surface_container;
+    color: @on_surface_variant;
+}
+
+#workspaces button:hover {
+    background: @surface_container_high;
+    color: @on_surface;
+}
+
+#workspaces button.active {
+    background: @primary_container;
+    color: @on_primary_container;
+}
+
+#workspaces button.urgent {
+    background: @error_container;
+    color: @on_error_container;
+}
+
+#workspaces button .niri-taskbar-btn {
+    margin: 0 2px;
+    font-size: 14px;
+}
+
+#workspaces button .niri-taskbar-btn.focused {
+    color: @on_primary_container;
+}
+
+#window {
+    padding: 2px 12px;
+    margin: 3px 2px;
+    border-radius: 999px;
+    background: @surface_container;
+    color: @on_surface;
+}
+
+window#waybar.empty #window {
+    background: transparent;
+}
+
+/* ---------- 中间：性能 + 防熄屏 + 时钟 + 媒体 ---------- */
+
+#power-profiles-daemon,
+#idle_inhibitor,
+#clock,
+#custom-media-prev,
+#custom-media-playpause,
+#custom-media-next {
+    padding: 2px 10px;
+    margin: 3px 2px;
+    border-radius: 999px;
+    background: @surface_container;
+    color: @on_surface_variant;
+    font-size: 19px;
+}
+
+#power-profiles-daemon {
+    font-size: 17px;
+    padding: 2px 12px;
+    margin: 3px 5px;
+}
+
+#idle_inhibitor {
+    font-size: 16px;
+}
+
+#clock {
+    color: @on_primary_container;
+    font-size: 16px;
+    background: @primary_container;
+}
+
+#clock:hover {
+    background: @secondary_container;
+    color: @on_secondary_container;
+}
+
+#custom-media-prev,
+#custom-media-playpause,
+#custom-media-next {
+    font-size: 21px;
+}
+
+#custom-media-playpause {
+    color: @primary;
+}
+
+#custom-media-playpause:hover {
+    color: @tertiary;
+}
+
+#custom-media-prev:hover,
+#custom-media-next:hover {
+    color: @primary;
+}
+
+#power-profiles-daemon.performance {
+    color: @error;
+}
+
+#power-profiles-daemon.power-saver {
+    color: @secondary;
+}
+
+#idle_inhibitor.activated {
+    color: @primary;
+}
+
+/* ---------- 右侧：独立模块（实色圆角块） ---------- */
+
+#network,
+#bluetooth,
+#battery {
+    padding: 2px 10px;
+    margin: 3px 2px;
+    border-radius: 999px;
+    background: @surface_container;
+    color: @on_surface_variant;
+}
+
+#tray {
+    padding: 2px 8px;
+    margin: 3px 2px;
+    border-radius: 999px;
+    background: @surface_container;
+}
+
+#tray > .passive {
+    background: transparent;
+}
+
+#tray > .active {
+    background: transparent;
+}
+
+/* 状态色 */
+#network {
+    color: @primary;
+}
+
+#network.disconnected {
+    color: @error;
+}
+
+#bluetooth.connected {
+    color: @tertiary;
+}
+
+#battery.charging {
+    color: @tertiary;
+}
+
+#battery.critical:not(.charging) {
+    color: @error;
+    animation-name: blink;
+    animation-duration: 0.8s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+@keyframes blink {
+    to {
+        background-color: @error_container;
+        color: @on_error_container;
+    }
+}
+
+/* ---------- 亮度 group：内屏亮度图标 + 滑条 ---------- */
+
+#group-backlight {
+    background: transparent;
+}
+
+#backlight,
+#custom-ddcutil-day,
+#custom-ddcutil-night,
+#custom-ddcutil-sleep,
+#backlight-slider {
+    margin: 3px 2px;
+    border-radius: 999px;
+    background: @surface_container;
+    padding: 2px 10px;
+    color: @on_surface_variant;
+}
+
+#backlight-slider {
+    min-width: 150px;
+}
+
+#backlight-slider slider {
+    min-height: 14px;
+    min-width: 14px;
+    border-radius: 50%;
+    background: @on_surface;
+    border: 2px solid @primary;
+}
+
+#backlight-slider trough {
+    min-height: 6px;
+    border-radius: 3px;
+    background: @surface_container_high;
+}
+
+#backlight-slider highlight {
+    border-radius: 3px;
+    background: @primary;
+}
+
+/* ---------- 音频 group：扬声器 + 麦克风 + 滑条 ---------- */
+
+#group-audio {
+    background: transparent;
+}
+
+/* waybar 源码 ASlider.cpp: scale_.set_name("pulseaudio-slider")
+   GTK widget name 是连字符形式，CSS 选择器必须写 #pulseaudio-slider */
+#custom-audio,
+#custom-mic,
+#pulseaudio-slider {
+    margin: 3px 2px;
+    border-radius: 999px;
+    background: @surface_container;
+    padding: 2px 10px;
+    color: @on_surface_variant;
+}
+
+#pulseaudio-slider {
+    min-width: 150px;
+}
+
+#pulseaudio-slider slider {
+    min-height: 14px;
+    min-width: 14px;
+    border-radius: 50%;
+    background: @on_surface;
+    border: 2px solid @primary;
+}
+
+#pulseaudio-slider trough {
+    min-height: 6px;
+    border-radius: 3px;
+    background: @surface_container_high;
+}
+
+#pulseaudio-slider highlight {
+    border-radius: 3px;
+    background: @primary;
+}
+
+#custom-audio.muted {
+    color: @error;
+}
+
+/* 静音 + hover：保持红色，不被普通 hover 覆盖 */
+#custom-audio.muted:hover {
+    background: @error_container;
+    color: @error;
+}
+
+#custom-mic.source-muted {
+    color: @error;
+}
+
+/* 统一 hover：所有模块（含 group 内部）使用同一套高亮 */
+#network:hover,
+#bluetooth:hover,
+#battery:hover,
+#tray:hover,
+#power-profiles-daemon:hover,
+#idle_inhibitor:hover,
+#custom-media-prev:hover,
+#custom-media-playpause:hover,
+#custom-media-next:hover,
+#backlight:hover,
+#custom-brightness-preset:hover,
+#backlight-slider:hover,
+#custom-audio:hover,
+#custom-mic:hover,
+#pulseaudio-slider:hover {
+    background: @surface_container_high;
+    color: @on_surface;
+}
+
+/* ---------- 电源：单按钮（powermenu） ---------- */
+
+#custom-powermenu_1 {
+    padding: 2px 10px;
+    margin: 3px 2px;
+    border-radius: 999px;
+    background: @surface_container;
+    color: @error;
+}
+
+#custom-powermenu_1:hover {
+    background: @error_container;
+    color: @primary;
+}

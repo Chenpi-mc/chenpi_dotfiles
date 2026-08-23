@@ -1,0 +1,93 @@
+{
+  "fbterm": {
+    "install_allowed": true,
+    "package": "fbterm",
+    "reviewed_at_unix": 1785634970,
+    "risk": {
+      "findings": [],
+      "level": "low"
+    },
+    "user_confirmed_install": false
+  },
+  "proton-ge-bin": {
+    "install_allowed": true,
+    "package": "proton-ge-bin",
+    "reviewed_at_unix": 1785745023,
+    "risk": {
+      "findings": [
+        {
+          "file": "PKGBUILD",
+          "pattern": "curl "
+        },
+        {
+          "file": "add-to-changelog.sh",
+          "pattern": "curl "
+        }
+      ],
+      "level": "medium"
+    },
+    "user_confirmed_at_unix": 1785745101,
+    "user_confirmed_install": true
+  },
+  "protonup-qt": {
+    "install_allowed": true,
+    "package": "protonup-qt",
+    "reviewed_at_unix": 1785743391,
+    "risk": {
+      "findings": [],
+      "level": "low"
+    },
+    "user_confirmed_at_unix": 1785744771,
+    "user_confirmed_install": true
+  },
+  "steamcmd": {
+    "install_allowed": false,
+    "package": "steamcmd",
+    "reviewed_at_unix": 1785805313,
+    "risk": {
+      "findings": [
+        {
+          "file": "steamcmd.install",
+          "pattern": "rm -rf /"
+        }
+      ],
+      "level": "high"
+    },
+    "user_confirmed_install": false
+  },
+  "themix-full-git": {
+    "install_allowed": true,
+    "package": "themix-full-git",
+    "reviewed_at_unix": 1786325182,
+    "risk": {
+      "findings": [],
+      "level": "low"
+    },
+    "user_confirmed_install": false
+  },
+  "themix-theme-oomox-git": {
+    "install_allowed": true,
+    "package": "themix-theme-oomox-git",
+    "reviewed_at_unix": 1786325433,
+    "risk": {
+      "findings": [],
+      "level": "low"
+    },
+    "user_confirmed_install": false
+  },
+  "umu-launcher-git": {
+    "install_allowed": true,
+    "package": "umu-launcher-git",
+    "reviewed_at_unix": 1785743398,
+    "risk": {
+      "findings": [
+        {
+          "file": "PKGBUILD",
+          "pattern": "sha256sums=('skip'"
+        }
+      ],
+      "level": "medium"
+    },
+    "user_confirmed_install": false
+  }
+}
