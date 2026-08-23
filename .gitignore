@@ -3,9 +3,5 @@
 .pulse-cookie-excluded/
 .screen-excluded/
 
-# miyu 运行时数据（缓存、临时）
-.miyu/cache/
-.miyu/state/daemon-launch.json
-
-# 如果你想连聊天记录都不传，取消下面这行的注释
-# .miyu/state/conversation.db*
+# miyu 全部运行时数据（含记忆、聊天记录）——公开仓库不传
+.miyu/
