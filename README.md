@@ -25,14 +25,12 @@ cd chenpi_dotfiles
 ./arch-install.sh
 ```
 
-脚本会：
-
+| 脚本会： |
+|------|
 | 备份现有配置到 `~/.dotfiles-backup-时间戳/` |
-|------|
 | 恢复 `.config/` 下的软件配置和顶层 dotfile |
-|------|
 | 按 `pkglist.txt` 用 pacman 安装官方源软件包 |
-|------|
+
 | 按 `pkglist-aur.txt` 用 yay 安装 AUR 软件包 |
 
 **脚本使用相对路径，仓库放哪都能跑，不依赖固定位置。**
