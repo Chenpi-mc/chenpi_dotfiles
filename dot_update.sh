@@ -3,8 +3,9 @@
 # 用法：./dot_update.sh
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC="$HOME"
-DEST="$HOME/chenpi_file/chenpi_dotfiles"
+DEST="$SCRIPT_DIR"
 
 # 要同步的 .config 软件（新增软件配置时在这里加一行）
 CONFIG_APPS=(
