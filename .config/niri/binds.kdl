@@ -439,8 +439,8 @@ binds {
     // ===== 媒体键（播放/暂停/切歌）=====
     // 耳机和键盘上的媒体键之前没绑定，niri 收到按键直接丢弃，所以暂停/切歌没反应
     // playerctl 负责把按键转成播放器控制命令，播放器需要支持 MPRIS（大多数都支持）
-    XF86AudioPlay  hotkey-overlay-title="播放/暂停 Play/Pause" { spawn "playerctl" "play-pause"; }
-    XF86AudioNext  hotkey-overlay-title="下一曲 Next" { spawn "playerctl" "next"; }
-    XF86AudioPrev  hotkey-overlay-title="上一曲 Previous" { spawn "playerctl" "previous"; }
+    XF86AudioPlay  allow-when-locked=true hotkey-overlay-title="播放/暂停 Play/Pause" { spawn "playerctl" "play-pause"; }
+    XF86AudioNext  allow-when-locked=true hotkey-overlay-title="下一曲 Next" { spawn "playerctl" "next"; }
+    XF86AudioPrev  allow-when-locked=true hotkey-overlay-title="上一曲 Previous" { spawn "playerctl" "previous"; }
 
 }
