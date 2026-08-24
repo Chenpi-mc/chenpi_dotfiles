@@ -5,7 +5,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC="$HOME"
-DEST="$SCRIPT_DIR"
+DEST="$SCRIPT_DIR/dotfiles"
 
 # 要同步的 .config 软件（新增软件配置时在这里加一行）
 CONFIG_APPS=(
@@ -23,6 +23,24 @@ CONFIG_APPS=(
   waybar
   swayosd
   fcitx5
+  starship.toml
+  fontconfig
+  gtk-3.0
+  gtk-4.0
+  dconf
+  autostart
+  scripts
+  cava
+  MangoHud
+  nwg-look
+  glow
+  satty
+  xdg-desktop-portal
+  user-dirs.dirs
+  user-dirs.locale
+  xsettingsd
+  pulse
+  pavucontrol.ini
 )
 
 # 要同步的顶层 dotfile

@@ -4,7 +4,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SRC="$SCRIPT_DIR"
+SRC="$SCRIPT_DIR/dotfiles"
 echo "==> 配置仓库位置：$SRC"
 
 if [ ! -d "$SRC" ]; then
@@ -16,14 +16,14 @@ fi
 BACKUP="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
 echo "==> 备份现有配置到 $BACKUP"
 mkdir -p "$BACKUP"
-for app in niri matugen fish kitty yazi nvim mpv btop fastfetch fuzzel mako waybar swayosd fcitx5; do
+for app in niri matugen fish kitty yazi nvim mpv btop fastfetch fuzzel mako waybar swayosd fcitx5 starship.toml fontconfig gtk-3.0 gtk-4.0 dconf autostart scripts cava MangoHud nwg-look glow satty xdg-desktop-portal user-dirs.dirs user-dirs.locale xsettingsd pulse pavucontrol.ini; do
   [ -e "$HOME/.config/$app" ] && mv "$HOME/.config/$app" "$BACKUP/"
 done
 
 # 铺回 .config
 echo "==> 恢复 .config/"
 mkdir -p "$HOME/.config"
-for app in niri matugen fish kitty yazi nvim mpv btop fastfetch fuzzel mako waybar swayosd fcitx5; do
+for app in niri matugen fish kitty yazi nvim mpv btop fastfetch fuzzel mako waybar swayosd fcitx5 starship.toml fontconfig gtk-3.0 gtk-4.0 dconf autostart scripts cava MangoHud nwg-look glow satty xdg-desktop-portal user-dirs.dirs user-dirs.locale xsettingsd pulse pavucontrol.ini; do
   if [ -d "$SRC/.config/$app" ]; then
     cp -r "$SRC/.config/$app" "$HOME/.config/"
     echo "    .config/$app ✓"

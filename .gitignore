@@ -4,4 +4,7 @@
 .screen-excluded/
 
 # miyu 全部运行时数据（含记忆、聊天记录）——公开仓库不传
-.miyu/
+dotfiles/.miyu/
+
+# PulseAudio 认证 cookie——泄露可被连接音频
+dotfiles/.config/pulse/cookie
