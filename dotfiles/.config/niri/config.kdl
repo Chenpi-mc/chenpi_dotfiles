@@ -41,14 +41,14 @@ environment {
     // LIBVA_DRIVER_NAME "nvidia"
 }
 
-spawn-at-startup "noctalia"
+// 壁纸 daemon（awww）
+spawn-at-startup "awww-daemon"
+spawn-at-startup "awww-daemon" "-n" "overview"
 // 任务栏（waybar，含左上角工作区指示器）
 spawn-at-startup "waybar"
 // 音量/亮度 OSD
 spawn-at-startup "swayosd-server"
 spawn-at-startup "~/.config/niri/scripts/toggle-eyecare.sh" "--sync"
-// Re-render GTK M3 templates after Noctalia palette is ready (~8s on cold start)
-spawn-at-startup "bash" "-c" "sleep 8; noctalia msg config-reload && noctalia msg templates-apply"
 
 hotkey-overlay {
     skip-at-startup

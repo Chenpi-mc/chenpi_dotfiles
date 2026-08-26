@@ -16,7 +16,7 @@ binds {
     Mod+Shift+Slash hotkey-overlay-title="快捷键教程 Keybind tutorial" { spawn "~/.config/niri/scripts/niri-binds"; }
 
     // alt+tab切换窗口
-    Alt+Tab hotkey-overlay-title="快速跳转窗口 Quick window switch menu" {spawn "noctalia" "msg" "window-switcher";}
+    Alt+Tab hotkey-overlay-title="快速跳转窗口 Quick window switch menu" {spawn "~/.config/niri/scripts/niri-quick-switch-fuzzel.py";}
     Mod+Alt+W hotkey-overlay-title="壁纸选择 Wallpaper picker" {spawn "waypaper";}
     Mod+Alt+M hotkey-overlay-title="切换颜色策略 Change color strategy" {spawn "~/.config/scripts/matugen-select-type.sh";}
     Mod+Alt+T hotkey-overlay-title="切换颜色策略 Change color strategy" {spawn "~/.config/scripts/matugen-select-type.sh";}
@@ -400,10 +400,10 @@ binds {
 
     // 截图相关
     // 截图前创建一个用来触发截图音效进程的token
-    Mod+Alt+A  hotkey-overlay-title="选取区域截图 Select screenshot" { spawn "noctalia" "msg" "screenshot-region"; }
+    Mod+Alt+A  hotkey-overlay-title="选取区域截图 Select screenshot" { spawn "~/.config/niri/scripts/region-screenshot.sh"; }
     Mod+Alt+Ctrl+A  hotkey-overlay-title="截取聚焦窗口 Focus-window screenshot" { screenshot-window; }
     Mod+Alt+Ctrl+Shift+A  hotkey-overlay-title="截取显示器 Monitor screenshot" { screenshot-screen; }
-    Print  hotkey-overlay-title=null { spawn "noctalia" "msg" "screenshot-region"; }
+    Print  hotkey-overlay-title=null { spawn "~/.config/niri/scripts/region-screenshot.sh"; }
     Ctrl+Print  hotkey-overlay-title=null { screenshot-window; }
     Shift+Print  hotkey-overlay-title=null { screenshot-screen; }
 

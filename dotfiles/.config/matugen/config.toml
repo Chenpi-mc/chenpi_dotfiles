@@ -8,7 +8,7 @@ post_hook='rm ~/.config/waybar-niri-Win11Like/colors.css && ln -s ~/.config/wayb
 
 # [templates.pywalfox]
 # input_path = '~/.config/matugen/templates/pywalfox-colors.json'
-output_path = '~/.cache/wal/colors.json'
+# output_path = '~/.cache/wal/colors.json'
 # post_hook = 'pywalfox update &'
 
 [templates.fuzzel]
