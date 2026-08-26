@@ -26,7 +26,7 @@ layer-rule {
     match namespace="^launcher$"
     geometry-corner-radius 8
     background-effect {
-        xray true
+        xray false
 	blur true
     }
 }
@@ -41,14 +41,14 @@ window-rule {
         opacity 0.92
         background-effect {
             blur true
-	    xray true
+	    xray false
         }
     }
 }
 window-rule {
     match app-id="one.alynx.showmethekey"
     background-effect {
-        xray true
+        xray false
         blur false
     }
 }

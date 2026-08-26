@@ -86,7 +86,7 @@
         "tooltip-format-ethernet": "{ifname} : {ipaddr}\n---\n左键：打开面板\n右键：高级网络配置",
         "tooltip-format-disconnected": "网络未连接\n---\n左键：打开面板\n右键：高级网络配置",
         "on-click": "kitty --class network-tui -e ~/.config/waybar/scripts/select-network-tui.sh",
-        "on-click-right": "kitty --class nmtui --title nmtui nmtui",
+        "on-click-right": "kitty --class nmtui --title nmtui nmtui"
     },
     // ---------- 蓝牙（独立模块） ----------
     "bluetooth": {
@@ -167,7 +167,7 @@
         ]
     },
     "custom/audio": {
-        "exec": "/home/chenpi/.config/waybar/scripts/audio-sink.sh",
+        "exec": "~/.config/waybar/scripts/audio-sink.sh",
         "interval": 2,
         "return-type": "json",
         "format": "{}",

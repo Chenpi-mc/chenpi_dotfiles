@@ -36,7 +36,7 @@ tooltip label {
 /* ---------- 左侧：工作区（noctalia 风格） + 窗口 ---------- */
 
 #workspaces {
-    background: #2e2e32;
+    background: @surface_container_high;
     border-radius: 999px;
     margin: 1px 12px;
     padding: 3px 5px;
@@ -46,21 +46,21 @@ tooltip label {
     padding: 1px 3px;
     margin: 1px 3px;
     border-radius: 999px;
-    background: #4a4a4e;
-    color: #f2f2f2;
+    background: @surface_container;
+    color: @on_surface;
     min-width: 18px;
     min-height: 18px;
     transition: font-size 0.15s ease, padding 0.15s ease, background 0.15s ease;
 }
 
 #workspaces button:hover {
-    background: #55555a;
+    background: @surface_container_highest;
     color: @on_surface;
 }
 
 #workspaces button.active {
-    background: #d8d0f0;
-    color: #1c1c1e;
+    background: @primary;
+    color: @on_primary;
     padding: 1px 14px;
 }
 

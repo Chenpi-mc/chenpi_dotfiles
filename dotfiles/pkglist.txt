@@ -94,13 +94,11 @@ ly
 mesa-utils
 miyu
 mpv
-mpvpaper
 nautilus
 nautilus-open-any-terminal
 networkmanager
 niri-display-settings-git
 niri-sidebar-git
-noctalia
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
@@ -156,10 +154,8 @@ thunar
 thunar-archive-plugin
 thunar-volman
 timg
-tmux
 tree
 ttf-jetbrains-maple-mono-nf-xx-xx
-ttf-jetbrains-mono
 ttf-jetbrains-mono-nerd
 ttf-liberation
 ttf-lxgw-wenkai-screen

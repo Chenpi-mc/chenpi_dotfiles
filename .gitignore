@@ -8,3 +8,7 @@ dotfiles/.miyu/
 
 # PulseAudio 认证 cookie——泄露可被连接音频
 dotfiles/.config/pulse/cookie
+
+# niri 配置备份和空占位文件——不进仓库
+dotfiles/.config/niri/*.bak
+dotfiles/.config/niri/dms/
