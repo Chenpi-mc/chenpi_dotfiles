@@ -110,6 +110,17 @@ for d in "${TOP_DIRS[@]}"; do
   fi
 done
 
+echo "==> 同步系统级配置（/etc）"
+mkdir -p "$DEST/../etc"
+for f in /etc/sddm.conf /etc/sddm.conf.d/kde_settings.conf /etc/sddm.conf.d/locale.conf; do
+  if [ -f "$f" ]; then
+    rel="${f#/etc/}"
+    mkdir -p "$DEST/../etc/$(dirname "$rel")"
+    cp -a "$f" "$DEST/../etc/$rel"
+    echo "    $rel ✓"
+  fi
+done
+
 echo "==> 同步 pkglist"
 pacman -Qqe > "$DEST/pkglist.txt" 2>/dev/null || true
 if command -v yay >/dev/null 2>&1; then

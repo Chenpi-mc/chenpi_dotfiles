@@ -39,6 +39,18 @@ for d in .vim .icons .themes; do
   [ -d "$SRC/$d" ] && cp -a "$SRC/$d" "$HOME/" && echo "    $d ✓"
 done
 
+# 恢复系统级配置（/etc）
+echo "==> 恢复系统级配置（/etc）"
+if [ -d "$SCRIPT_DIR/etc" ]; then
+  for f in $(find "$SCRIPT_DIR/etc" -type f); do
+    rel="${f#$SCRIPT_DIR/etc/}"
+    dest="/etc/$rel"
+    sudo mkdir -p "$(dirname "$dest")"
+    sudo cp -a "$f" "$dest"
+    echo "    /etc/$rel ✓"
+  done
+fi
+
 # 安装软件包
 echo "==> 安装官方源软件包（pkglist.txt）"
 if [ -f "$SRC/pkglist.txt" ]; then

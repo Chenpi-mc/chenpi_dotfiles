@@ -14,6 +14,7 @@ breeze-gtk
 btop
 btrfs-assistant
 btrfs-progs
+ca-certificates
 cachyos-keyring
 cachyos-mirrorlist
 cachyos-v3-mirrorlist
@@ -25,6 +26,7 @@ cliphist-tui-git
 clipnotify
 cmatrix
 cowsay
+dbus-units
 ddcutil-service
 dnsmasq
 downgrade
@@ -47,6 +49,7 @@ flatpak
 flclash
 freerdp
 fzf
+gcc-libs
 gdu
 github-cli
 glfw
@@ -76,6 +79,7 @@ lib32-mesa
 lib32-pipewire
 lib32-vulkan-intel
 libgsf
+librime-data
 libvncserver
 linux-cachyos
 linux-cachyos-bore
