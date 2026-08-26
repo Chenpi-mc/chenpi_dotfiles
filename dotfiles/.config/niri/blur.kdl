@@ -3,7 +3,7 @@
 blur {
     passes 3
     offset 3
-    noise 0.02
+    noise 0.001
     saturation 1.5
 }
 // 全局窗口规则。让所有普通窗口以xray的形式显示blur。xray仅渲染一次模糊版本的背景，然后将其以类似“壁纸”的形式显示在窗口后面，不是实时渲染模糊，所以完全没有性能消耗。

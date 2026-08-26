@@ -1,8 +1,6 @@
 [user]
 	email = Chenpi_mc@163.com
 	name = Chenpi-mc
-[http]
-	proxy = http://127.0.0.1:7890
 [credential "https://github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential

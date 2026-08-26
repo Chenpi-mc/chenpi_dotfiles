@@ -1,7 +1,0 @@
-output "eDP-1"{
-	mode "1920x1080@59.984"
-	//mode custom=true "1920x1200@59.984"
-	scale 1.24
-	position x=0 y=0
-
-}

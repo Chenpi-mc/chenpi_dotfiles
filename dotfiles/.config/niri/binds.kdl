@@ -16,11 +16,11 @@ binds {
     Mod+Shift+Slash hotkey-overlay-title="快捷键教程 Keybind tutorial" { spawn "~/.config/niri/scripts/niri-binds"; }
 
     // alt+tab切换窗口
-    Alt+Tab hotkey-overlay-title="快速跳转窗口 Quick window switch menu" {spawn "~/.config/niri/scripts/niri-quick-switch-fuzzel.py";}
-    Mod+Alt+W hotkey-overlay-title="切换壁纸 Change wallpaper" {spawn "waypaper";}
+    Alt+Tab hotkey-overlay-title="快速跳转窗口 Quick window switch menu" {spawn "noctalia" "msg" "window-switcher";}
+    Mod+Alt+W hotkey-overlay-title="随机切换壁纸 Random wallpaper" {spawn "noctalia" "msg" "wallpaper-random";}
     Mod+Alt+M hotkey-overlay-title="切换颜色策略 Change color strategy" {spawn "~/.config/scripts/matugen-select-type.sh";}
     Mod+Alt+T hotkey-overlay-title="切换颜色策略 Change color strategy" {spawn "~/.config/scripts/matugen-select-type.sh";}
-    Mod+F10 hotkey-overlay-title="随机切换壁纸 Random wallpaper" {spawn "waypaper" "--random";}
+    Mod+F10 hotkey-overlay-title="随机切换壁纸 Random wallpaper" {spawn "noctalia" "msg" "wallpaper-random";}
     Mod+Shift+F10 hotkey-overlay-title="随机下载动漫壁纸 Random download anime wallpaper" {spawn "~/.config/scripts/random-anime-wallpaper.sh";}
     Mod+F1 hotkey-overlay-title="开关输入法 Toggle fcitx" {spawn-sh "pkill fcitx5 || fcitx5 -d";}
     Mod+F2 hotkey-overlay-title=null  {spawn-sh "pkill cava || true && pkill waybar || true && waybar -c $HOME/.config/waybar/config.jsonc -s $HOME/.config/waybar/style.css ";}
@@ -77,7 +77,7 @@ binds {
     Mod+E hotkey-overlay-title="文档管理器 Filemanager" { spawn-sh "thunar || env GSK_RENDERER=gl nautilus --new-window"; }
     // 另一个打开nautilus的快捷键，主要是为了在同时安装thunar和nautilus的情况下打开naultilus
     Mod+Alt+E hotkey-overlay-title=null {spawn "env" "GSK_RENDERER=gl" "nautilus" "--new-window";}
-    Mod+Z hotkey-overlay-title="程序菜单 Applauncher" { spawn "fuzzel"; }
+    Mod+Z hotkey-overlay-title="程序菜单 Applauncher" { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
     // 锁屏
     Mod+Alt+L hotkey-overlay-title="锁屏 Lock screen" { spawn-sh "hyprlock -c ~/.config/niri/hyprlock.conf"; } 
     Mod+P hotkey-overlay-title="提取窗口信息 Pick information" { spawn "~/.config/niri/scripts/niri-pick" "focus"; }
@@ -92,17 +92,17 @@ binds {
     // The allow-when-locked=true property makes them work even when the session is locked.
     // Using spawn-sh allows to pass multiple arguments together with the command.
     // 调节音量
-    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "swayosd-client --output-volume +5||wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "swayosd-client --output-volume -5||wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-"; }
-    XF86AudioMute        allow-when-locked=true { spawn-sh "swayosd-client --output-volume mute-toggle||wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "noctalia" "msg" "volume-up" "5"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "noctalia" "msg" "volume-down" "5"; }
+    XF86AudioMute        allow-when-locked=true { spawn "noctalia" "msg" "volume-mute"; }
     XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
 
     // Example brightness key mappings for brightnessctl.
     // You can use regular spawn with multiple arguments too (to avsoid going through "sh"),
     // but you need to manually put each argument in separate "" quotes.
     // 调节屏幕亮度
-    XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+5%"; }
-    XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "5%-"; }
+    XF86MonBrightnessUp allow-when-locked=true { spawn "noctalia" "msg" "brightness-up" "5"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "noctalia" "msg" "brightness-down" "5"; }
 
     // Open/close the Overview: a zoomed-out view of workspaces and windows.
     // You can also move the mouse into the top-left hot corner,
@@ -400,12 +400,12 @@ binds {
 
     // 截图相关
     // 截图前创建一个用来触发截图音效进程的token
-    Mod+Alt+A  hotkey-overlay-title="选取区域截图 Select screenshot"  {spawn-sh "niri msg action screenshot --show-pointer false && pkill -f -USR1 screenshot-sound.sh";}
-    Mod+Alt+Ctrl+A  hotkey-overlay-title="截取聚焦窗口 Focus-window screenshot" { spawn-sh "niri msg action screenshot-window && pkill -f -USR1 screenshot-sound.sh"; }
-    Mod+Alt+Ctrl+Shift+A  hotkey-overlay-title="截取显示器 Monitor screenshot" { spawn-sh "niri msg action screenshot-screen --show-pointer false && pkill -f -USR1 screenshot-sound.sh"; }
-    Print  hotkey-overlay-title=null {spawn-sh "niri msg action screenshot --show-pointer false && pkill -f -USR1 screenshot-sound.sh";}
-    Ctrl+Print  hotkey-overlay-title=null { spawn-sh "niri msg action screenshot-window --show-pointer false && pkill -f -USR1 screenshot-sound.sh"; }
-    Shift+Print  hotkey-overlay-title=null { spawn-sh "niri msg action screenshot-screen --show-pointer false && pkill -f -USR1 screenshot-sound.sh"; }
+    Mod+Alt+A  hotkey-overlay-title="选取区域截图 Select screenshot" { spawn "noctalia" "msg" "screenshot-region"; }
+    Mod+Alt+Ctrl+A  hotkey-overlay-title="截取聚焦窗口 Focus-window screenshot" { screenshot-window; }
+    Mod+Alt+Ctrl+Shift+A  hotkey-overlay-title="截取显示器 Monitor screenshot" { screenshot-screen; }
+    Print  hotkey-overlay-title=null { spawn "noctalia" "msg" "screenshot-region"; }
+    Ctrl+Print  hotkey-overlay-title=null { screenshot-window; }
+    Shift+Print  hotkey-overlay-title=null { screenshot-screen; }
 
     //Mod+Shift+S { spawn "~/.config/niri/scripts/satty-screenshot.sh";}
     Mod+Shift+S  hotkey-overlay-title="截图后按下此键进行编辑 Edit the image after screenshot" { spawn-sh "wl-paste | satty -f -";}
