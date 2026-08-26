@@ -10,8 +10,8 @@
 * {
     border: none;
     border-radius: 0;
-    font-family: "JetBrains Maple Mono", "LXGW WenKai Screen", "Font Awesome 7 Free";
-    font-size: 14px;
+    font-family: "JetBrainsMonoNL Nerd Font Propo", "LXGW WenKai Screen", "Font Awesome 7 Free";
+    font-size: 16px;
     min-height: 0;
 }
 
@@ -29,7 +29,7 @@ tooltip {
 
 tooltip label {
     color: @on_surface;
-    font-size: 13px;
+    font-size: 15px;
     padding: 6px 10px;
 }
 
@@ -48,7 +48,6 @@ tooltip label {
     border-radius: 999px;
     background: #4a4a4e;
     color: #f2f2f2;
-    font-size: 11px;
     min-width: 18px;
     min-height: 18px;
     transition: font-size 0.15s ease, padding 0.15s ease, background 0.15s ease;
@@ -57,13 +56,11 @@ tooltip label {
 #workspaces button:hover {
     background: #55555a;
     color: @on_surface;
-    font-size: 22px;
 }
 
 #workspaces button.active {
     background: #d8d0f0;
     color: #1c1c1e;
-    font-size: 34px;
     padding: 1px 14px;
 }
 
@@ -74,7 +71,7 @@ tooltip label {
 
 #workspaces button .niri-taskbar-btn {
     margin: 0 2px;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 #workspaces button .niri-taskbar-btn.focused {
@@ -106,22 +103,22 @@ window#waybar.empty #window {
     border-radius: 999px;
     background: @surface_container;
     color: @on_surface_variant;
-    font-size: 17px;
+    font-size: 19px;
 }
 
 #power-profiles-daemon {
-    font-size: 16px;
+    font-size: 17px;
     padding: 2px 12px;
     margin: 1px 4px;
 }
 
 #idle_inhibitor {
-    font-size: 15px;
+    font-size: 16px;
 }
 
 #clock {
     color: @on_primary_container;
-    font-size: 14px;
+    font-size: 16px;
     background: @primary_container;
 }
 
@@ -133,7 +130,7 @@ window#waybar.empty #window {
 #custom-media-prev,
 #custom-media-playpause,
 #custom-media-next {
-    font-size: 20px;
+    font-size: 21px;
 }
 
 #custom-media-playpause {
