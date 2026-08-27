@@ -7,8 +7,8 @@ fcitx5-remote -t
 # 获取切换后的输入法
 IME=$(fcitx5-remote -n 2>/dev/null)
 case "$IME" in
-    "rime")                     TEXT="中文" ICON="input-keyboard-chinese" ;;
-    "keyboard-us"|"keyboard-us-intl") TEXT="EN"  ICON="input-keyboard-latin" ;;
+    "rime")                     TEXT="中文" ICON="/usr/share/icons/hicolor/scalable/apps/fcitx.svg" ;;
+    "keyboard-us"|"keyboard-us-intl") TEXT="EN"  ICON="/usr/share/icons/Adwaita/scalable/devices/input-keyboard.svg" ;;
     *)                          TEXT="$IME" ICON="input-keyboard" ;;
 esac
 
