@@ -9,7 +9,7 @@ while true; do
     if [ -n "$IME" ] && [ "$IME" != "$LAST" ]; then
         if [ -n "$LAST" ]; then
             case "$IME" in
-                "rime")                     TEXT="中文" ICON="/usr/share/icons/hicolor/scalable/apps/fcitx.svg" ;;
+                "rime")                     TEXT="中文" ICON="/usr/share/icons/hicolor/scalable/apps/fcitx_rime_im.svg" ;;
                 "keyboard-us"|"keyboard-us-intl") TEXT="EN"  ICON="/usr/share/icons/Adwaita/scalable/devices/input-keyboard.svg" ;;
                 *)                          TEXT="$IME" ICON="input-keyboard" ;;
             esac
