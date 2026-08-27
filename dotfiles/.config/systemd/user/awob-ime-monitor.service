@@ -1,0 +1,10 @@
+[Unit]
+Description=Awob IME monitor (poll fcitx5 input method changes)
+After=graphical-session.target
+
+[Service]
+ExecStart=/home/chenpi/.config/awob/ime-monitor.sh
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target
