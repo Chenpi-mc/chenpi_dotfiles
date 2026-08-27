@@ -1,6 +1,8 @@
-// Noctalia 风格 OSD 主题
+// Noctalia 风格 OSD 主题（matugen 配色）
 // 底部胶囊：上下留白14px 左右留白15px，左图标+文字 / 中进度条 / 右百分数
 // 输入法（ime）/大写（caps）事件时：隐藏进度条和百分数，文字居中显示
+import "../_palettes/matugen.kdl"
+
 surface {
     width 300
     height 50
@@ -10,15 +12,6 @@ surface {
     show     "1400ms"
     fade-out "220ms"
     transition "320ms"
-}
-
-palette {
-    bg      "rgba(46,46,50,0.9)"
-    fg      "#f2f2f2"
-    track   "rgba(255,255,255,0.12)"
-    accent  "#d8d0f0"
-    muted   "rgba(242,242,242,0.55)"
-    hidden  "#00000000"
 }
 
 styles {

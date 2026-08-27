@@ -5,6 +5,10 @@
 input_path = '~/.config/matugen/templates/colors.css'
 output_path = '~/.config/waybar/colors.css'
 
+[templates.awob]
+input_path = '~/.config/matugen/templates/awob-palette.kdl'
+output_path = '~/.config/awob/themes/_palettes/matugen.kdl'
+
 # [templates.pywalfox]
 # input_path = '~/.config/matugen/templates/pywalfox-colors.json'
 # output_path = '~/.cache/wal/colors.json'
