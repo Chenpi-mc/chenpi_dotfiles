@@ -25,7 +25,7 @@ scene {
     image z=1 src="{$icon ?? icon($event)}" x=15 y="center" width=24 height=24
     text z=1 value="{ $event == 'ime' ? '' : ($event == 'caps' ? '' : truncate($app ?? label($event), 8)) }" font="JetBrainsMonoNL Nerd Font Propo 13 600" x=45 y=18 colour="$fg"
     text z=1 anchor="center" value="{ $event == 'ime' ? truncate($app ?? label($event), 12) : ($event == 'caps' ? truncate($app ?? label($event), 12) : '') }" font="JetBrainsMonoNL Nerd Font Propo 13 600" x=0 y="center" colour="$fg"
-    rect z=1 x=150 y=23 width="100%-200" height=4 radius=999 fill="{ $event == 'ime' ? '#00000000' : ($event == 'caps' ? '#00000000' : '$track') }"
-    bar z=2 x=150 y=23 width="100%-200" height=4 radius=999 fill="{ $event == 'ime' ? '#00000000' : ($event == 'caps' ? '#00000000' : ($event == 'volume' ? $tertiary : $accent)) }" min=0 max="$max" value="$value" from="{$lastValue ?? $value}"
+    rect z=1 x=125 y=23 width="100%-180" height=4 radius=999 fill="{ $event == 'ime' ? '#00000000' : ($event == 'caps' ? '#00000000' : '$track') }"
+    bar z=2 x=125 y=23 width="100%-180" height=4 radius=999 fill="{ $event == 'ime' ? '#00000000' : ($event == 'caps' ? '#00000000' : ($event == 'volume' ? $tertiary : $accent)) }" min=0 max="$max" value="$value" from="{$lastValue ?? $value}"
     text z=1 anchor="top-right" value="{ $event == 'ime' ? '' : ($event == 'caps' ? '' : int($progress * 100) + '%') }" font="JetBrainsMonoNL Nerd Font Propo 13 600" x=15 y=18 colour="$muted"
 }
