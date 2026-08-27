@@ -7,7 +7,7 @@ output_path = '~/.config/waybar/colors.css'
 
 # [templates.pywalfox]
 # input_path = '~/.config/matugen/templates/pywalfox-colors.json'
-output_path = '~/.cache/wal/colors.json'
+# output_path = '~/.cache/wal/colors.json'
 # post_hook = 'pywalfox update &'
 
 [templates.fuzzel]
@@ -112,9 +112,9 @@ post_hook = 'pkill swayosd && swayosd-server &'
 #input_path = '~/.config/matugen/templates/swaylock-colors'
 #output_path = '~/.config/swaylock/config'
 
-[templates.fastfetch]
-input_path = '~/.config/matugen/templates/fastfetch-config.jsonc'
-output_path = '~/.config/fastfetch/config.jsonc'
+# [templates.fastfetch]
+# input_path = '~/.config/matugen/templates/fastfetch-config.jsonc'
+# output_path = '~/.config/fastfetch/config.jsonc'
 
 #[templates.neovim]
 #input_path = '~/.config/matugen/templates/neovim/template.lua'
