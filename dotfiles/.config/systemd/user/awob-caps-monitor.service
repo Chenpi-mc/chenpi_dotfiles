@@ -1,0 +1,10 @@
+[Unit]
+Description=Awob CapsLock monitor (inotify on keyboard led)
+After=graphical-session.target
+
+[Service]
+ExecStart=/home/chenpi/.config/awob/caps-monitor.sh
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target
