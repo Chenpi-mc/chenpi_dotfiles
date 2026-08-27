@@ -1,0 +1,9 @@
+// awob OSD 调色板（matugen 生成）
+palette {
+    bg      "#271d1d"
+    fg      "#f0dede"
+    track   "#322827"
+    accent  "#ffb3b3"
+    muted   "#d7c1c1"
+    hidden  "#00000000"
+}
