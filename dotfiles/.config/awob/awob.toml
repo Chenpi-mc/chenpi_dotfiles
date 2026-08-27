@@ -1,0 +1,4 @@
+theme = "noctalia"
+
+[supervisor]
+auto = true

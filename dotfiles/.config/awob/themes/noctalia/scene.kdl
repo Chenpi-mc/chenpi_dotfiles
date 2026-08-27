@@ -1,0 +1,35 @@
+// Noctalia 风格 OSD 主题
+// 深灰胶囊 + 淡紫 accent + 圆角 + 阴影 + 平滑动画
+surface {
+    width 320
+    height 72
+    anchor "top"
+    offset 0 44
+    fade-in  "160ms"
+    show     "1400ms"
+    fade-out "220ms"
+    transition "320ms"
+}
+
+palette {
+    bg      "rgba(46,46,50,0.9)"
+    fg      "#f2f2f2"
+    track   "rgba(255,255,255,0.12)"
+    accent  "#d8d0f0"
+    muted   "rgba(242,242,242,0.55)"
+}
+
+styles {
+    style "muted"    accent="$muted" alpha="0.85"
+    style "warn"     accent="#e8c877"
+    style "critical" accent="#e87070"
+}
+
+scene {
+    rect z=0 x=0 y=0 width="100%" height="100%" radius=999 fill="$bg" shadow="0 10 28 rgba(0,0,0,0.4)"
+    image z=1 src="{$icon ?? icon($event)}" x=20 y="center" width=26 height=26 colour="$fg"
+    text z=1 value="{truncate($app ?? label($event), 24)}" font="JetBrainsMonoNL Nerd Font Propo 13 600" x=56 y=14 colour="$fg"
+    text z=1 anchor="top-right" value="{int($progress * 100)}%" font="JetBrainsMonoNL Nerd Font Propo 13 600" x=14 y=14 colour="$muted"
+    rect z=1 x=56 y=46 width="100%-70" height=8 radius=999 fill="$track"
+    bar z=2 x=56 y=46 width="100%-70" height=8 radius=999 fill="$accent" min=0 max="$max" value="$value" from="{$lastValue ?? $value}"
+}

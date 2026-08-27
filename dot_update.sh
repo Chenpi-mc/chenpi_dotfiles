@@ -21,6 +21,7 @@ CONFIG_APPS=(
   fuzzel
   mako
   waybar
+  awob
   swayosd
   fcitx5
   starship.toml

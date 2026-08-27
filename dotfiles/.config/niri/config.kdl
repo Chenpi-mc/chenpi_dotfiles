@@ -209,8 +209,7 @@ spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 spawn-at-startup "systemctl" "--user" "start" "linuxqq-clipsync"
 // 闲置时自动熄屏锁屏睡眠的脚本，说实话这东西毫无用处
 // spawn-at-startup "~/.config/niri/scripts/swayidle.sh"
-// 大写锁定键的osd显示
-spawn-at-startup "swayosd-server"
+// 大写锁定键的osd显示（已迁移到 awob，swayosd 停用）
 // 自动开启护眼模式,经纬度设置位置
 spawn-at-startup "~/.local/bin/toggle-wlsunset"
 // 截图音效的守护进程
