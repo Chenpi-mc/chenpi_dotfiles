@@ -313,13 +313,17 @@ pac_install() {
     fi
 
     verify_add "${valid[@]}"
+    write_log "PAC" "安装 ${#valid[@]} 个官方源包"
     if ! printf '%s\n' "${valid[@]}" | as_root pacman -S --needed --noconfirm -; then
         warn "整批失败（可能有包互相冲突），改成逐个装"
         local failed=()
         for p in "${valid[@]}"; do
             as_root pacman -S --needed --noconfirm "$p" >/dev/null 2>&1 || failed+=("$p")
         done
-        [ ${#failed[@]} -gt 0 ] && warn "这些装不上：${failed[*]}"
+        if [ ${#failed[@]} -gt 0 ]; then
+            warn "这些装不上：${failed[*]}"
+            write_log "PAC-FAIL" "${failed[*]}"
+        fi
     fi
 }
 
@@ -333,13 +337,17 @@ aur_install() {
         return 1
     fi
     verify_add "${pkgs[@]}"
+    write_log "AUR" "安装 ${#pkgs[@]} 个 AUR 包：${pkgs[*]}"
     if ! "$AUR_HELPER" -S --needed --noconfirm "${pkgs[@]}"; then
         warn "整批失败，改成逐个装"
         local p failed=()
         for p in "${pkgs[@]}"; do
             "$AUR_HELPER" -S --needed --noconfirm "$p" >/dev/null 2>&1 || failed+=("$p")
         done
-        [ ${#failed[@]} -gt 0 ] && warn "这些 AUR 包装不上：${failed[*]}"
+        if [ ${#failed[@]} -gt 0 ]; then
+            warn "这些 AUR 包装不上：${failed[*]}"
+            write_log "AUR-FAIL" "${failed[*]}"
+        fi
     fi
 }
 

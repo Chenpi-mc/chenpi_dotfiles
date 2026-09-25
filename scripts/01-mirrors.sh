@@ -189,7 +189,7 @@ fi
 if command -v curl >/dev/null 2>&1; then
     PROBE_OK=0
     PROBE_N=0
-    PROBE_LIST="$(grep -m3 '^[[:space:]]*Server' "$TMP_NEW" | awk '{print $3}')"
+    PROBE_LIST="$(grep -m3 '^[[:space:]]*Server' "$TMP_NEW" | awk '{print $3}' || true)"
     while read -r _url; do
         [ -z "$_url" ] && continue
         # 把 $repo / $arch 换成真实路径，拼出 core 仓库的数据库地址

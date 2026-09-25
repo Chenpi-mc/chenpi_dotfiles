@@ -89,7 +89,7 @@ else
                 write_log "MISSING-PKG" "$p"
             done
             log "常见原因：网络 / 镜像源不通、AUR 助手没装好、包之间有冲突、源没配全"
-            log "手动补：sudo pacman -S <包名> 或 yay -S <包名>，然后重跑本模块"
+            log "手动补：sudo pacman -S --needed <包名> 或 yay -S --needed <包名>，然后重跑本模块"
             FAILED=1
         fi
     fi

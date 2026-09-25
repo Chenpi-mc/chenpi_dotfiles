@@ -43,7 +43,7 @@ fi
 
 if ! command -v lspci >/dev/null 2>&1; then
     error "拿不到 lspci，没法判断显卡类型"
-    log "手动装：sudo pacman -S pciutils，然后重跑本模块"
+    log "手动装：sudo pacman -S --needed pciutils，然后重跑本模块"
     exit 1
 fi
 

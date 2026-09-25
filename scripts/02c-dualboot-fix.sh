@@ -44,7 +44,7 @@ pac_install os-prober ntfs-3g exfatprogs fuse3 || true
 
 if ! command -v os-prober >/dev/null 2>&1; then
     warn "os-prober 没装上，后面的检测和 GRUB 重建都跳过"
-    log "手动补装：sudo pacman -S os-prober，然后重跑本模块"
+    log "手动补装：sudo pacman -S --needed os-prober，然后重跑本模块"
     exit 0
 fi
 success "os-prober 就绪"

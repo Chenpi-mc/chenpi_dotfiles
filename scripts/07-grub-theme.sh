@@ -51,7 +51,7 @@ fi
 # 有些系统引导用 GRUB 但工具被精简掉了，那样也配不了
 if ! command -v grub-mkconfig >/dev/null 2>&1; then
     warn "找不到 grub-mkconfig（grub 工具没装全），跳过"
-    log "想配主题的话先补上：sudo pacman -S grub"
+    log "想配主题的话先补上：sudo pacman -S --needed grub"
     exit 0
 fi
 
@@ -120,7 +120,7 @@ else
         success "主题装好了：$THEME_NAME（$THEME_DIR）"
     else
         warn "还是没找到可用的主题目录，这次就不配主题了"
-        log "手动装法：sudo pacman -S $GRUB_THEME_REPO_PKG"
+        log "手动装法：sudo pacman -S --needed $GRUB_THEME_REPO_PKG"
         log "         或者 yay -S $GRUB_THEME_AUR_PKG（AUR split 包，任选一个）"
         log "装完重跑 ./install.sh，本模块会认出它并自动配好"
         exit 0

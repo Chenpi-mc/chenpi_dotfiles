@@ -344,7 +344,7 @@ if [ "$GRUB_OK" -eq 1 ] && [ -f "/etc/default/grub" ] && command -v grub-mkconfi
             NEED_REGEN=1
         else
             warn "grub-btrfs 没装上，GRUB 菜单里不会有快照子菜单（快照本身照常工作）"
-            warn "补救：装好源之后重跑本模块，或者手动 pacman -S grub-btrfs && grub-mkconfig -o /boot/grub/grub.cfg"
+            warn "补救：装好源之后重跑本模块，或者手动 pacman -S --needed grub-btrfs && grub-mkconfig -o /boot/grub/grub.cfg"
         fi
     fi
 
@@ -487,7 +487,7 @@ log "  1) 先看有哪些快照：      snapper -c root list"
 log "  2) 退回到某个快照：      sudo snapper -c root undochange <快照编号>..0"
 log "     （意思是「把系统文件恢复成那个快照的样子」，<编号>..0 里 0 代表当前系统）"
 log "  3) 重启；也可以开机时在 GRUB 的 Snapshots 子菜单里直接进快照系统看一眼"
-log "  想要图形界面回滚的话：   sudo pacman -S btrfs-assistant"
+log "  想要图形界面回滚的话：   sudo pacman -S --needed btrfs-assistant"
 log "  家目录同理，把 -c root 换成 -c home"
 
 if [ "$ROOT_SNAP_OK" -eq 0 ]; then

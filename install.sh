@@ -57,6 +57,8 @@ fi
 
 # ------------------------------- 进度记录 -------------------------------
 touch "$STATE_FILE"
+write_log "START" "install.sh 启动｜参数：${*:-无}｜用户：$(id -un)｜工作目录：$PWD"
+write_log "START" "仓库：$SCRIPT_DIR"
 is_done() { grep -qx "$1" "$STATE_FILE" 2>/dev/null; }
 mark_done() { printf '%s\n' "$1" >> "$STATE_FILE"; }
 
@@ -73,6 +75,7 @@ show_banner() { clear 2>/dev/null || true; banner; }
 
 # ------------------------------- 模块清单 -------------------------------
 MANDATORY_MODULES=(
+    "00-preflight.sh"
     "00-btrfs-init.sh"
     "01a-base.sh"
     "02b-musthave.sh"
@@ -95,6 +98,7 @@ OPTIONAL_MENU=(
 # 模块按这里的先后执行，再按“必装 / 用户选中”过滤。
 # 对账（05-verify）固定放最后，否则它跑在装应用之前，等于没对账。
 ORDERED_MODULES=(
+    "00-preflight.sh"
     "00-btrfs-init.sh"
     "01-mirrors.sh"
     "01a-base.sh"
@@ -281,19 +285,30 @@ for module in "${MODULES[@]}"; do
     section "模块 $CURRENT_STEP/$TOTAL_STEPS" "$module"
     echo ""
 
+    write_log "MODULE-START" "[$CURRENT_STEP/$TOTAL_STEPS] $module"
+    module_start_ts="$(date +%s)"
     bash "$script_path"
     exit_code=$?
+    module_cost=$(( $(date +%s) - module_start_ts ))
 
     if [ $exit_code -eq 0 ]; then
         mark_done "$module"
-        success "模块 $module 完成"
+        write_log "MODULE-END" "$module 成功｜耗时 ${module_cost}s"
+        success "模块 $module 完成（耗时 ${module_cost}s）"
     elif [ $exit_code -eq 130 ]; then
         echo ""
+        write_log "MODULE-END" "$module 被中断｜耗时 ${module_cost}s"
         warn "被用户中断（Ctrl+C）。进度已保存，重跑会接着来。"
         exit 130
     else
+        write_log "MODULE-END" "$module 失败，退出码 $exit_code｜耗时 ${module_cost}s"
         warn "模块 $module 失败（退出码 $exit_code），记录后继续"
         FAILED_MODULES+=("$module")
+        # 系统检查没过就别往下装了，先把问题解决
+        if [ "$module" = "00-preflight.sh" ]; then
+            error "系统检查没通过。按上面的提示解决后重跑，已完成的模块会自动跳过"
+            exit 1
+        fi
     fi
 done
 
@@ -312,6 +327,12 @@ fi
 if [ -f "$LOG_FILE" ]; then
     as_user mkdir -p "$TARGET_HOME/Documents" 2>/dev/null || true
     as_user cp "$LOG_FILE" "$TARGET_HOME/Documents/chenpi-install.log" 2>/dev/null || true
+fi
+
+# 装机前的系统检查报告也存一份，以后回头看这台机器当时什么状况
+if [ -f /tmp/chenpi-preflight.txt ]; then
+    as_user mkdir -p "$TARGET_HOME/Documents" 2>/dev/null || true
+    as_user cp /tmp/chenpi-preflight.txt "$TARGET_HOME/Documents/装机前系统检查.txt" 2>/dev/null || true
 fi
 
 section "完成" "汇总"
