@@ -57,6 +57,7 @@ cd chenpi_dotfiles
 
 | 模块 | 干什么 |
 |------|--------|
+| `00-preflight` | **动手前先体检**：发行版、内核、CPU、内存、显卡、磁盘空间、btrfs 子卷、引导器、显示管理器、网络、时区语言、编译依赖、仓库自检全查一遍，结果写报告；撞到致命问题会拦下整个流程 |
 | `00-btrfs-init` | 装 snapper、给 `@` 和 `@home` 配快照、集成进 GRUB 快照菜单，再打一个「装系统之前」的还原点 |
 | `01a-base` | keyring、编辑器、multilib、中文字体、TTY 字体、locale、archlinuxcn 源、AUR 助手 |
 | `02b-musthave` | 音频栈（pipewire）、输入法（fcitx5 + rime）、蓝牙（**检测到硬件才装**）、常用工具、pacman 彩色进度条 |
@@ -68,6 +69,7 @@ cd chenpi_dotfiles
 | `99-apps` | 按 `dotfiles/pkglist*.txt` 把 190 + 16 个包装回来 |
 | `05-verify` | **最后一步**：逐个核对包、关键配置、壁纸是否到位 |
 
+系统检查的报告在 `/tmp/chenpi-preflight.txt`，跑完会复制一份到 `~/Documents/装机前系统检查.txt`。报告里出现「致命」时会停下不装（比如不是 Arch、在 Live 环境跑、磁盘不足 5G）；确认无误要强行继续可以设 `CHENPI_IGNORE_PREFLIGHT=1` 再跑。
 还有几个可选模块，跑的时候会用 fzf 列出来让你勾（不想交互就加 `--yes`，按默认走）。
 
 | 参数 | 作用 |
