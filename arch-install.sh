@@ -156,7 +156,7 @@ do_backup() {
   log "打包 ${#items[@]} 项 → $BACKUP_HOME"
   as_root tar -czf "$BACKUP_HOME" -C "$TARGET_HOME" "${tar_ex[@]}" "${items[@]}"
   fix_owner "$BACKUP_HOME"
-  ok "家目录备份完成（$(du -h "$BACKUP_HOME" | cut -f1)）"
+  ok "家目录备份完成（$(du -h "$BACKUP_HOME" 2>/dev/null | cut -f1)）"
 
   for i in "${ETC_FILES[@]}"; do
     if [ -f "$i" ]; then etc_items+=("${i#/etc/}"); fi
