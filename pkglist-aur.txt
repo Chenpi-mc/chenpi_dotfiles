@@ -1,5 +1,0 @@
-fbterm
-grub-customizer
-sunloginclient
-wl-wordlens-git
-zulu-21-bin
