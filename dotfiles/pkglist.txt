@@ -3,10 +3,13 @@ alsa-firmware
 alsa-ucm-conf
 android-tools
 archlinuxcn-keyring
+awob-bin
+awob-listeners-all
 base
 base-devel
 bat
 bazaar
+bilibili-tui-bin
 bluetui
 bluez
 breeze-cursors
@@ -22,13 +25,16 @@ cachyos-v4-mirrorlist
 chafa
 chromium
 chwd-arch-git
+cliamp-bin
 cliphist-tui-git
 clipnotify
 cmatrix
 cowsay
 dbus-units
 ddcutil-service
+deepseek-harness
 dnsmasq
+dosfstools
 downgrade
 dxvk-mingw-git
 efibootmgr
@@ -44,6 +50,7 @@ fcitx5-shorin-patched-git
 ffmpegthumbnailer
 file-roller
 firefox
+firefox-i18n-zh-cn
 fish
 flatpak
 flclash
@@ -55,6 +62,7 @@ github-cli
 glfw
 glow
 gnome-keyring
+go-musicfox-git
 grub
 grub-btrfs
 grub-customizer
@@ -83,7 +91,6 @@ librime-data
 libvncserver
 linux-cachyos
 linux-cachyos-bore
-linux-firmware
 linux-lts
 linux-zen
 linuxqq
@@ -116,6 +123,7 @@ pipewire
 pipewire-alsa
 pipewire-jack
 pipewire-pulse
+pnpm
 poppler-glib
 power-profiles-daemon
 pv
@@ -162,6 +170,7 @@ ttf-lxgw-wenkai-screen
 tumbler
 usbutils
 vim
+voicefox-bin
 vulkan-intel
 vulkan-tools
 waifu2x-ncnn-vulkan

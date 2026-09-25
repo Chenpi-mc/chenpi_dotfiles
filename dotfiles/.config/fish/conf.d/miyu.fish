@@ -1,3 +1,6 @@
+# miyu shell hook · v0.6.2 · 2ff5d8cf
+# 由 Miyu 生成，勿手改；重装 miyu fish-init
+
 complete -c miyu -n __fish_use_subcommand -f -a ask -d '向助手发送一条消息'
 complete -c miyu -n __fish_use_subcommand -f -a init -d '创建默认配置和状态文件；Shell 集成请使用对应的 <shell>-init 命令'
 complete -c miyu -n __fish_use_subcommand -f -a paths -d '显示应用配置、数据和缓存路径'
@@ -22,7 +25,9 @@ function __miyu_paste
             set -g __miyu_image_counter 0
         end
         set __miyu_image_counter (math $__miyu_image_counter + 1)
-        set output (string replace "Image 1" "Image $__miyu_image_counter" -- $output)
+        # 视频的占位符标签是 Video,只替 Image 的话第二个视频起序号永远是 1,
+        # 解析端会把它们都当成第一个附件(08-28)。
+        set output (string replace -r '^\[(Image|Video) 1' "[\$1 $__miyu_image_counter" -- $output)
         commandline -i -- $output
         commandline -f repaint
     else
@@ -128,6 +133,44 @@ function __miyu_first_command
     return 1
 end
 
+# 只看首词长什么样,所以取未展开的原文:--tokens-expanded 会真的跑命令替换,
+# 放在每次回车上按不得。老版本 fish 不认 --tokens-raw,拿不到就当判不出来。
+function __miyu_first_token_raw
+    set -l tokens (commandline --input="$argv[1]" --tokens-raw 2>/dev/null)
+    while test (count $tokens) -gt 0
+        set -l token $tokens[1]
+        if string match -qr '^[A-Za-z_][A-Za-z0-9_]*=' -- "$token"
+            set -e tokens[1]
+            continue
+        end
+        printf '%s' "$token"
+        return 0
+    end
+    return 1
+end
+
+# 首词是不是一个「展开后还是它自己」的普通词。$ ( ) ~ { } % 引号反斜杠这些会把
+# 首词换成别的东西,判不出来就交回 fish 自己展开,这里不猜;; & | < > # ^ ! 和空白
+# 同理,出现了说明这行有 fish 语法结构。
+# 通配符 * ? [ ] 故意不在名单里:命令位上出现通配符,本来就说明这不是个命令名。
+# 不能用 \w 白名单——fish 的正则里 \w 只认 ASCII,中文会被当成元字符。
+function __miyu_head_is_plain_word
+    test -n "$argv[1]"; or return 1
+    string match -qr '[\x27"$()~{}%;&|<>#^!\x5c\s]' -- "$argv[1]"; and return 1
+    return 0
+end
+
+function __miyu_hand_to_ai
+    set -e __miyu_image_counter
+    __miyu_wrap_fish_prompt
+    set -g __miyu_cursor_hidden 1
+    history append -- "$argv[1]"
+    set -g __miyu_pending_buffer "$argv[1]"
+    commandline -b -- ""
+    printf '\e[?25l'
+    commandline -f execute
+end
+
 function __miyu_accept_line
     status is-interactive; or return
 
@@ -140,7 +183,16 @@ function __miyu_accept_line
     end
 
     if not __miyu_buffer_is_multiline "$buffer"
-        __miyu_execute_or_continue
+        # 单行本来靠 fish_command_not_found 兜底,但 fish 是先展开再找命令:
+        # 自然语言里带个没匹配上的通配符(「输出这段命令 …/core.*.zst」),
+        # fish 在展开阶段就报「未找到通配符的匹配项」,命令根本没开始找,
+        # 兜底函数也就永远不触发。首词是普通词又不是任何命令时提前接管。
+        set -l head (__miyu_first_token_raw "$buffer")
+        if not __miyu_head_is_plain_word "$head"; or type -q -- "$head"
+            __miyu_execute_or_continue
+            return
+        end
+        __miyu_hand_to_ai "$buffer"
         return
     end
 
@@ -160,14 +212,7 @@ function __miyu_accept_line
         return
     end
 
-    set -e __miyu_image_counter
-    __miyu_wrap_fish_prompt
-    set -g __miyu_cursor_hidden 1
-    history append -- "$buffer"
-    set -g __miyu_pending_buffer "$buffer"
-    commandline -b -- ""
-    printf '\e[?25l'
-    commandline -f execute
+    __miyu_hand_to_ai "$buffer"
 end
 
 bind enter __miyu_accept_line

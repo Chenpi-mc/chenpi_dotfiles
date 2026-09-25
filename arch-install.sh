@@ -20,6 +20,13 @@ for app in niri matugen fish kitty yazi nvim mpv btop fastfetch fuzzel mako wayb
   [ -e "$HOME/.config/$app" ] && mv "$HOME/.config/$app" "$BACKUP/"
 done
 
+# 备份旧壁纸
+if [ -d "$HOME/chenpi_file/wallpaper" ]; then
+  mkdir -p "$BACKUP/chenpi_file"
+  mv "$HOME/chenpi_file/wallpaper" "$BACKUP/chenpi_file/"
+  echo "    旧壁纸已备份"
+fi
+
 # 铺回 .config
 echo "==> 恢复 .config/"
 mkdir -p "$HOME/.config"
@@ -49,6 +56,14 @@ if [ -d "$SCRIPT_DIR/etc" ]; then
     sudo cp -a "$f" "$dest"
     echo "    /etc/$rel ✓"
   done
+fi
+
+# 恢复壁纸
+echo "==> 恢复壁纸"
+if [ -d "$SRC/chenpi_file/wallpaper" ]; then
+  mkdir -p "$HOME/chenpi_file"
+  cp -a "$SRC/chenpi_file/wallpaper" "$HOME/chenpi_file/"
+  echo "    ~/chenpi_file/wallpaper ✓"
 fi
 
 # 安装软件包

@@ -111,6 +111,22 @@ for d in "${TOP_DIRS[@]}"; do
   fi
 done
 
+# 壁纸目录（~/chenpi_file/wallpaper → dotfiles/chenpi_file/wallpaper）
+# 注意：别把整个 chenpi_file 丢进 TOP_DIRS，那会让仓库把自己拷进自己
+echo "==> 同步壁纸"
+WALLPAPER_SRC="$SRC/chenpi_file/wallpaper"
+WALLPAPER_DEST="$DEST/chenpi_file/wallpaper"
+if [ -d "$WALLPAPER_SRC" ]; then
+  rm -rf "$WALLPAPER_DEST"
+  mkdir -p "$WALLPAPER_DEST"
+  cp -a "$WALLPAPER_SRC/." "$WALLPAPER_DEST/"
+  # 模糊壁纸缓存是指向 ~/.cache 的软链接，不进仓库
+  rm -f "$WALLPAPER_DEST/cache-niri-overview-blur-dark"
+  echo "    ~/chenpi_file/wallpaper ✓（$(find "$WALLPAPER_DEST" -type f | wc -l) 个文件）"
+else
+  echo "    跳过（~/chenpi_file/wallpaper 不存在）"
+fi
+
 echo "==> 同步系统级配置（/etc）"
 mkdir -p "$DEST/../etc"
 for f in /etc/sddm.conf /etc/sddm.conf.d/kde_settings.conf /etc/sddm.conf.d/locale.conf; do

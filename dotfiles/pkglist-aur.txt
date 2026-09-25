@@ -1,5 +1,16 @@
+awob-bin
+awob-listener-backlight-bin
+awob-listener-battery-bin
+awob-listener-keyboard-backlight-bin
+awob-listener-pipewire-bin
+awob-listener-power-profile-bin
+awob-listener-wob-bin
+awob-listeners-all
+bilibili-tui-bin
+cliamp-bin
 fbterm
 grub-customizer
 sunloginclient
+voicefox-bin
 wl-wordlens-git
 zulu-21-bin
