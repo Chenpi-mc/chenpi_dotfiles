@@ -50,6 +50,7 @@ cd chenpi_dotfiles
 | 环境检查 | 确认是 Arch、有 pacman、没用 root 直接跑 |
 | 临时免密 | 安装期间不反复问密码（规则临时写进 sudoers，退出自动删） |
 | 备份现有配置 | 打包成 `~/dotfiles-backup-时间戳.tar.gz`，`/etc` 那份单独一个文件 |
+| AUR 助手 | 没有 yay / paru 就从 AUR 自举 yay-bin（不加第三方源，不绑别人的 GPG key） |
 | 安装软件包 | 按两份 pkglist 用 pacman / yay 装 |
 | 恢复配置 | `.config/`、顶层 dotfile、壁纸、`/etc/sddm.conf` |
 | 检查显示管理器 | 报出装了哪些 DM、启用了哪个，提醒别开多个 |

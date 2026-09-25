@@ -169,6 +169,42 @@ do_backup() {
   fi
 }
 
+# ---------------------------- 步骤：AUR 助手 ----------------------------
+# 新装的 Arch 没有 yay/paru。不想像 shorin 那样加第三方源（绑别人的 GPG key），
+# 就走标准做法：从 AUR 自举 yay-bin。makepkg 不能以 root 跑，所以这里要切回用户。
+ensure_aur_helper() {
+  if command -v yay >/dev/null 2>&1 || command -v paru >/dev/null 2>&1; then
+    ok "AUR 助手已存在，跳过"
+    return 0
+  fi
+
+  log "没找到 yay / paru，从 AUR 自举 yay-bin"
+  as_root pacman -S --needed --noconfirm base-devel git
+
+  local tmp
+  tmp="$(mktemp -d)"
+  log "克隆 yay-bin 到 $tmp"
+  if ! git clone --depth=1 https://aur.archlinux.org/yay-bin.git "$tmp/yay-bin"; then
+    warn "克隆失败（多半是网络），AUR 包这次会跳过"
+    warn "手动装法：git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si"
+    return 0
+  fi
+
+  log "编译安装（root 跑的话切回 $TARGET_USER，makepkg 不许用 root）"
+  if [ "$RUN_AS_ROOT" -eq 1 ]; then
+    chown -R "$TARGET_USER:" "$tmp"
+    ( cd "$tmp/yay-bin" && runuser -u "$TARGET_USER" -- env HOME="$TARGET_HOME" makepkg -si --noconfirm ) || true
+  else
+    ( cd "$tmp/yay-bin" && makepkg -si --noconfirm ) || true
+  fi
+
+  if command -v yay >/dev/null 2>&1; then
+    ok "yay 装好了（$(yay --version 2>/dev/null | head -1)）"
+  else
+    warn "yay 没装上，AUR 包这次会跳过（修好后重跑，会直接接着来）"
+  fi
+}
+
 # ------------------------------ 步骤：装包 ------------------------------
 do_packages() {
   local pkg
@@ -216,15 +252,23 @@ do_packages() {
     return 0
   fi
 
+  # AUR 助手：有 yay 用 yay，只有 paru 就用 paru
+  local aur=""
   if command -v yay >/dev/null 2>&1; then
-    if yay -S --needed --noconfirm - < "$SRC/pkglist-aur.txt"; then
+    aur="yay"
+  elif command -v paru >/dev/null 2>&1; then
+    aur="paru"
+  fi
+
+  if [ -n "$aur" ]; then
+    if "$aur" -S --needed --noconfirm - < "$SRC/pkglist-aur.txt"; then
       ok "AUR 软件包 ✓"
     else
       warn "AUR 整批失败，改成逐个装（慢，但能看出是哪个包坏）"
       local failed=()
       while read -r pkg; do
         if [ -n "$pkg" ]; then
-          yay -S --needed --noconfirm "$pkg" >/dev/null 2>&1 || failed+=("$pkg")
+          "$aur" -S --needed --noconfirm "$pkg" >/dev/null 2>&1 || failed+=("$pkg")
         fi
       done < "$SRC/pkglist-aur.txt"
       if [ ${#failed[@]} -gt 0 ]; then
@@ -232,8 +276,7 @@ do_packages() {
       fi
     fi
   else
-    warn "没装 yay，跳过 AUR 包"
-    warn "想装的话：git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si"
+    warn "yay / paru 都没有，跳过 AUR 包"
   fi
 }
 
@@ -370,6 +413,12 @@ if begin_step "备份现有配置"; then
   section "备份现有配置"
   do_backup
   mark_done "备份现有配置"
+fi
+
+if begin_step "AUR 助手"; then
+  section "AUR 助手"
+  ensure_aur_helper
+  mark_done "AUR 助手"
 fi
 
 if begin_step "安装软件包"; then
