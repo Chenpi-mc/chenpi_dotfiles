@@ -7,68 +7,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC="$HOME"
 DEST="$SCRIPT_DIR/dotfiles"
 
-# 要同步的 .config 软件（新增软件配置时在这里加一行）
-CONFIG_APPS=(
-  niri
-  matugen
-  fish
-  kitty
-  yazi
-  nvim
-  mpv
-  btop
-  fastfetch
-  fuzzel
-  mako
-  waybar
-  awob
-  swayosd
-  fcitx5
-  starship.toml
-  fontconfig
-  gtk-3.0
-  gtk-4.0
-  dconf
-  autostart
-  scripts
-  cava
-  MangoHud
-  nwg-look
-  glow
-  satty
-  xdg-desktop-portal
-  user-dirs.dirs
-  user-dirs.locale
-  xsettingsd
-  pulse
-  pavucontrol.ini
-)
-
-# 要同步的顶层 dotfile
-TOP_FILES=(
-  .bashrc
-  .bash_profile
-  .bash_logout
-  .fbtermrc
-  .vimrc
-  .gtkrc-2.0
-  .gitconfig
-  .wget-hsts
-)
-
-# 要同步的顶层目录
-TOP_DIRS=(
-  .vim
-  .icons
-  .themes
-  .miyu
-)
-
-# 同步 .miyu 时排除敏感项（API key、cookie、screen）
-MIYU_EXCLUDES=(
-  --exclude='config'
-  --exclude='state/daemon-launch.json'
-)
+# 清单统一放在 apps.conf，两个脚本共用（加东西只改那一处）
+if [ ! -f "$SCRIPT_DIR/apps.conf" ]; then
+  echo "错误：找不到 apps.conf（配置清单）" >&2
+  exit 1
+fi
+source "$SCRIPT_DIR/apps.conf"
 
 cd "$DEST"
 
@@ -97,49 +41,47 @@ echo "==> 同步顶层目录"
 for d in "${TOP_DIRS[@]}"; do
   if [ -e "$SRC/$d" ]; then
     rm -rf "$DEST/$d"
+    mkdir -p "$DEST/$d"
+    cp -a "$SRC/$d/." "$DEST/$d/"
     if [ "$d" = ".miyu" ]; then
-      # 用 cp + 手动排除敏感项（不依赖 rsync）
-      mkdir -p "$DEST/$d"
-      cp -a "$SRC/$d/." "$DEST/$d/"
-      for ex in config state/daemon-launch.json; do
-        rm -rf "$DEST/$d/$ex"
+      for ex in "${MIYU_EXCLUDES[@]}"; do
+        rm -rf "${DEST:?}/$d/$ex"
       done
-    else
-      cp -a "$SRC/$d" "$DEST/"
     fi
     echo "    $d ✓"
   fi
 done
 
-# 壁纸目录（~/chenpi_file/wallpaper → dotfiles/chenpi_file/wallpaper）
-# 注意：别把整个 chenpi_file 丢进 TOP_DIRS，那会让仓库把自己拷进自己
+# 壁纸目录（别把整个 chenpi_file 丢进 TOP_DIRS，那会让仓库把自己拷进自己）
 echo "==> 同步壁纸"
-WALLPAPER_SRC="$SRC/chenpi_file/wallpaper"
-WALLPAPER_DEST="$DEST/chenpi_file/wallpaper"
+WALLPAPER_SRC="$SRC/$WALLPAPER_DIR"
+WALLPAPER_DEST="$DEST/$WALLPAPER_DIR"
 if [ -d "$WALLPAPER_SRC" ]; then
   rm -rf "$WALLPAPER_DEST"
   mkdir -p "$WALLPAPER_DEST"
   cp -a "$WALLPAPER_SRC/." "$WALLPAPER_DEST/"
   # 模糊壁纸缓存是指向 ~/.cache 的软链接，不进仓库
-  rm -f "$WALLPAPER_DEST/cache-niri-overview-blur-dark"
-  echo "    ~/chenpi_file/wallpaper ✓（$(find "$WALLPAPER_DEST" -type f | wc -l) 个文件）"
+  for ex in "${WALLPAPER_EXCLUDES[@]}"; do
+    rm -f "$WALLPAPER_DEST/$ex"
+  done
+  echo "    壁纸 ✓（$(find "$WALLPAPER_DEST" -type f | wc -l) 个文件）"
 else
-  echo "    跳过（~/chenpi_file/wallpaper 不存在）"
+  echo "    跳过（$WALLPAPER_DIR 不存在）"
 fi
 
 echo "==> 同步系统级配置（/etc）"
-mkdir -p "$DEST/../etc"
-for f in /etc/sddm.conf /etc/sddm.conf.d/kde_settings.conf /etc/sddm.conf.d/locale.conf; do
+for f in "${ETC_FILES[@]}"; do
   if [ -f "$f" ]; then
     rel="${f#/etc/}"
-    mkdir -p "$DEST/../etc/$(dirname "$rel")"
-    cp -a "$f" "$DEST/../etc/$rel"
+    mkdir -p "$SCRIPT_DIR/etc/$(dirname "$rel")"
+    cp -a "$f" "$SCRIPT_DIR/etc/$rel"
     echo "    $rel ✓"
   fi
 done
 
 echo "==> 同步 pkglist"
-pacman -Qqe > "$DEST/pkglist.txt" 2>/dev/null || true
+# 用 -Qqen（native 只在官方源里的），AUR 包交给下面那份清单，避免两份重复
+pacman -Qqen > "$DEST/pkglist.txt" 2>/dev/null || true
 if command -v yay >/dev/null 2>&1; then
   yay -Qqm > "$DEST/pkglist-aur.txt" 2>/dev/null || true
 fi

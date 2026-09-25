@@ -12,3 +12,6 @@ dotfiles/.config/pulse/cookie
 # niri 配置备份和空占位文件——不进仓库
 dotfiles/.config/niri/*.bak
 dotfiles/.config/niri/dms/
+
+# 安装脚本的进度记录——本机状态，不进仓库
+.install_progress
