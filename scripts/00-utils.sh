@@ -3,11 +3,28 @@
 # 00-utils.sh — 公共函数库，所有模块都 source 它
 # 改写自 SHORiN-KiWATA/shorin-arch-setup 的 scripts/00-utils.sh（AGPL-3.0）
 #
-# 和原版的区别：
-#   1. 输出改成中文
-#   2. 不强制 root 运行（支持普通用户跑，内部自己调 sudo）
-#   3. 去掉了绑定他自己源 / 他的桌面变体的部分
+# 相对原版：不强制 root；支持中英双语输出；去掉了绑定他自己源的部分。
 # ==============================================================================
+
+# ------------------------------- 语言 -------------------------------
+# locale 是中文就中文，否则英文（TTY 一般显示不了中文）。
+# 想强制指定：CHENPI_LANG=zh 或 CHENPI_LANG=en
+if [ -z "${CHENPI_LANG:-}" ]; then
+    case "${LC_ALL:-${LC_MESSAGES:-${LANG:-}}}" in
+        zh*) CHENPI_LANG=zh ;;
+        *)   CHENPI_LANG=en ;;
+    esac
+fi
+export CHENPI_LANG
+
+# 双语取词：t "中文" "English"
+t() {
+    if [ "$CHENPI_LANG" = "zh" ]; then
+        printf '%s' "$1"
+    else
+        printf '%s' "${2:-$1}"
+    fi
+}
 
 # ------------------------------- 颜色与符号 -------------------------------
 export NC='\033[0m'
@@ -32,7 +49,8 @@ export LOG_FILE="${LOG_FILE:-/tmp/chenpi-install.log}"
 write_log() {
     local clean
     clean="$(echo -e "${2:-}" | sed 's/\x1b\[[0-9;]*m//g')"
-    printf '[%s] [%s] %s\n' "$(date '+%H:%M:%S')" "$1" "$clean" >> "$LOG_FILE"
+    # 日志写不进去（磁盘满、/tmp 只读）不该把脚本带崩，静默忽略
+    printf '[%s] [%s] %s\n' "$(date '+%H:%M:%S')" "$1" "$clean" >> "$LOG_FILE" 2>/dev/null || true
 }
 
 # ------------------------------- 输出函数 -------------------------------
@@ -72,9 +90,7 @@ warn() {
 
 error() {
     echo ""
-    echo -e "${H_RED}   ┏━ 出错了 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${NC}"
-    echo -e "${H_RED}   ┃ $1${NC}"
-    echo -e "${H_RED}   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${NC}"
+    echo -e "${H_RED}   ${CROSS} $1${NC}"
     echo ""
     write_log "ERROR" "$1"
 }
@@ -91,7 +107,7 @@ exe() {
         echo -e "   ${H_GRAY}└─────────────────────────────────────────────${H_GREEN}成功${H_GRAY} ─┘${NC}"
     else
         echo -e "   ${H_GRAY}└─────────────────────────────────────────────${H_RED}失败${H_GRAY} ─┘${NC}"
-        write_log "FAIL" "退出码 $status：$*"
+        write_log "FAIL" "exit $status: $*"
     fi
     return $status
 }
@@ -102,6 +118,11 @@ exe_silent() { "$@" >/dev/null 2>&1; }
 # 以 root 执行（本来就是 root 就直接跑，否则走 sudo）
 as_root() {
     if [ "${RUN_AS_ROOT:-0}" -eq 1 ]; then "$@"; else sudo "$@"; fi
+}
+
+# 只读探测专用：拿不到权限就静默失败，不弹密码
+as_root_quiet() {
+    if [ "${RUN_AS_ROOT:-0}" -eq 1 ]; then "$@"; else sudo -n "$@" 2>/dev/null; fi
 }
 
 # 以目标用户执行（root 跑时用 runuser 切回去，普通用户跑时就是自己）
@@ -124,7 +145,7 @@ fix_owner() {
 
 require_arch() {
     if ! command -v pacman >/dev/null 2>&1; then
-        error "这不是 Arch Linux（找不到 pacman）"
+        error "$(t "这不是 Arch Linux（找不到 pacman）" "not Arch Linux (pacman not found)")"
         exit 1
     fi
 }
@@ -144,7 +165,7 @@ detect_target_user() {
         local human_users=()
         mapfile -t human_users < <(awk -F: '$3 >= 1000 && $3 < 60000 {print $1}' /etc/passwd)
         if [ ${#human_users[@]} -eq 0 ]; then
-            error "系统里没有普通用户，请先用普通用户跑，或者先建一个用户"
+            error "$(t "系统里没有普通用户，先用普通用户跑或先建一个" "no regular user found; create one first")"
             exit 1
         fi
 
@@ -153,14 +174,14 @@ detect_target_user() {
         [ -z "$default_user" ] && default_user="${human_users[0]}"
 
         if [ -t 0 ] && [ ${#human_users[@]} -gt 1 ]; then
-            echo -e "   ${H_YELLOW}检测到多个普通用户，选一个作为配置目标：${NC}"
+            echo -e "   ${H_YELLOW}$(t "检测到多个普通用户，选一个作为配置目标：" "multiple users found, pick the target:")${NC}"
             local i
             for i in "${!human_users[@]}"; do
                 local mark=""
-                if [ "${human_users[$i]}" = "$default_user" ]; then mark=" ${H_CYAN}(默认)${NC}"; fi
+                if [ "${human_users[$i]}" = "$default_user" ]; then mark=" ${H_CYAN}$(t "(默认)" "(default)")${NC}"; fi
                 echo -e "       [$((i + 1))] ${human_users[$i]}${mark}"
             done
-            echo -ne "   ${H_CYAN}输入序号（直接回车用默认，20 秒超时）：${NC}"
+            echo -ne "   ${H_CYAN}$(t "输入序号（回车用默认，20 秒超时）：" "pick a number (enter = default, 20s timeout): ")${NC}"
             local idx
             if read -t 20 -r idx && [ -n "$idx" ] && [[ "$idx" =~ ^[0-9]+$ ]] \
                && [ "$idx" -ge 1 ] && [ "$idx" -le "${#human_users[@]}" ]; then
@@ -176,7 +197,7 @@ detect_target_user() {
 
     TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
     if [ -z "$TARGET_HOME" ] || [ ! -d "$TARGET_HOME" ]; then
-        error "找不到 $TARGET_USER 的家目录"
+        error "$(t "找不到 $TARGET_USER 的家目录" "no home directory for $TARGET_USER")"
         exit 1
     fi
 
@@ -188,7 +209,7 @@ detect_target_user() {
 force_copy() {
     local src="$1" target_dir="$2"
     if [ -z "$src" ] || [ -z "$target_dir" ]; then
-        warn "force_copy：参数不完整"
+        warn "$(t "force_copy 参数不完整" "force_copy: missing arguments")"
         return 1
     fi
     as_user mkdir -p "$target_dir"
@@ -216,11 +237,11 @@ check_dm_conflict() {
     done
 
     if [ -n "$DM_FOUND" ]; then
-        info_kv "已有显示管理器" "$DM_FOUND"
-        [ -n "$DM_ENABLED" ] && info_kv "已启用" "$DM_ENABLED"
+        info_kv "$(t "已有显示管理器" "display managers")" "$DM_FOUND"
+        [ -n "$DM_ENABLED" ] && info_kv "$(t "已启用" "enabled")" "$DM_ENABLED"
         export SKIP_DM=true
     else
-        info_kv "显示管理器" "无"
+        info_kv "$(t "显示管理器" "display manager")" "$(t "无" "none")"
         export SKIP_DM=false
     fi
 }
@@ -236,7 +257,7 @@ ensure_aur_helper() {
         AUR_HELPER="paru"
     fi
     if [ -n "$AUR_HELPER" ]; then
-        success "AUR 助手已存在：$AUR_HELPER"
+        success "$(t "AUR 助手已存在：$AUR_HELPER" "AUR helper found: $AUR_HELPER")"
         export AUR_HELPER
         return 0
     fi
@@ -247,29 +268,29 @@ ensure_aur_helper() {
     done
 
     if [ ${#from_repo[@]} -gt 0 ]; then
-        log "从已配置的源安装：${from_repo[*]}"
+        log "$(t "从已配置的源安装：${from_repo[*]}" "installing from configured repos: ${from_repo[*]}")"
         exe as_root pacman -S --needed --noconfirm "${from_repo[@]}"
         if command -v yay >/dev/null 2>&1; then AUR_HELPER="yay"; elif command -v paru >/dev/null 2>&1; then AUR_HELPER="paru"; fi
         if [ -n "$AUR_HELPER" ]; then
-            success "AUR 助手装好了：$AUR_HELPER"
+            success "$(t "AUR 助手装好了：$AUR_HELPER" "AUR helper installed: $AUR_HELPER")"
             export AUR_HELPER
             return 0
         fi
-        warn "源里装了但命令还是找不到，接着试 AUR 自举"
+        warn "$(t "源里装了但命令找不到，改试 AUR 自举" "installed from repo but command missing; trying AUR bootstrap")"
     fi
 
-    log "已配置的源里没有 yay / paru，从 AUR 自举 yay-bin"
+    log "$(t "源里没有 yay / paru，从 AUR 自举 yay-bin" "no yay/paru in repos; bootstrapping yay-bin from AUR")"
     exe as_root pacman -S --needed --noconfirm base-devel git || true
 
     local tmp
     tmp="$(mktemp -d)"
     if ! git clone --depth=1 https://aur.archlinux.org/yay-bin.git "$tmp/yay-bin"; then
-        warn "克隆失败（多半是网络），AUR 包这次会跳过"
-        warn "手动装法：git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si"
+        warn "$(t "克隆失败，AUR 包这次跳过" "clone failed; skipping AUR packages")"
+        warn "$(t "手动装：git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si" "manual: git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si")"
         return 0
     fi
 
-    log "编译安装（makepkg 不许用 root，所以切回 $TARGET_USER）"
+    log "$(t "编译安装（切回 $TARGET_USER）" "building as $TARGET_USER")"
     if [ "${RUN_AS_ROOT:-0}" -eq 1 ]; then
         chown -R "$TARGET_USER:" "$tmp"
         as_user sh -c "cd '$tmp/yay-bin' && makepkg -si --noconfirm" || true
@@ -279,10 +300,10 @@ ensure_aur_helper() {
 
     if command -v yay >/dev/null 2>&1; then
         AUR_HELPER="yay"
-        success "yay 装好了"
+        success "$(t "yay 装好了" "yay installed")"
         export AUR_HELPER
     else
-        warn "yay 没装上，AUR 包这次会跳过（修好后重跑，会直接接着来）"
+        warn "$(t "yay 没装上，AUR 包这个跳过，修好重跑" "yay install failed; AUR packages skipped, rerun later")"
     fi
 }
 
@@ -308,20 +329,20 @@ pac_install() {
         if pacman -Si "$p" >/dev/null 2>&1; then valid+=("$p"); fi
     done
     if [ ${#valid[@]} -eq 0 ]; then
-        warn "这些包在已配置的源里都找不到：${pkgs[*]}"
+        warn "$(t "源里找不到这些包：${pkgs[*]}" "not in any configured repo: ${pkgs[*]}")"
         return 1
     fi
 
     verify_add "${valid[@]}"
     write_log "PAC" "安装 ${#valid[@]} 个官方源包"
     if ! printf '%s\n' "${valid[@]}" | as_root pacman -S --needed --noconfirm -; then
-        warn "整批失败（可能有包互相冲突），改成逐个装"
+        warn "$(t "整批失败，改成逐个装" "batch failed; installing one by one")"
         local failed=()
         for p in "${valid[@]}"; do
             as_root pacman -S --needed --noconfirm "$p" >/dev/null 2>&1 || failed+=("$p")
         done
         if [ ${#failed[@]} -gt 0 ]; then
-            warn "这些装不上：${failed[*]}"
+            warn "$(t "这些装不上：${failed[*]}" "failed: ${failed[*]}")"
             write_log "PAC-FAIL" "${failed[*]}"
         fi
     fi
@@ -333,19 +354,19 @@ aur_install() {
     [ ${#pkgs[@]} -eq 0 ] && return 0
     ensure_aur_helper
     if [ -z "${AUR_HELPER:-}" ]; then
-        warn "没有 AUR 助手，跳过：${pkgs[*]}"
+        warn "$(t "没有 AUR 助手，跳过：${pkgs[*]}" "no AUR helper, skipping: ${pkgs[*]}")"
         return 1
     fi
     verify_add "${pkgs[@]}"
     write_log "AUR" "安装 ${#pkgs[@]} 个 AUR 包：${pkgs[*]}"
     if ! "$AUR_HELPER" -S --needed --noconfirm "${pkgs[@]}"; then
-        warn "整批失败，改成逐个装"
+        warn "$(t "整批失败，改成逐个装" "batch failed; installing one by one")"
         local p failed=()
         for p in "${pkgs[@]}"; do
             "$AUR_HELPER" -S --needed --noconfirm "$p" >/dev/null 2>&1 || failed+=("$p")
         done
         if [ ${#failed[@]} -gt 0 ]; then
-            warn "这些 AUR 包装不上：${failed[*]}"
+            warn "$(t "这些 AUR 包装不上：${failed[*]}" "AUR packages failed: ${failed[*]}")"
             write_log "AUR-FAIL" "${failed[*]}"
         fi
     fi
@@ -365,21 +386,21 @@ setup_nopasswd() {
     if [ "${RUN_AS_ROOT:-0}" -eq 1 ]; then return 0; fi
 
     if ! printf '%s ALL=(ALL) NOPASSWD: ALL\n' "$TARGET_USER" | as_root tee "$NOPASSWD_FILE" >/dev/null 2>&1; then
-        warn "免密规则写不进去，后面可能会多问几次密码"
+        warn "$(t "免密规则写不进去，后面会多问几次密码" "could not write NOPASSWD rule; expect more password prompts")"
         return 0
     fi
 
     # 先校验再启用：sudoers 写坏了会让 sudo 整个失灵，那就麻烦了
     if ! as_root visudo -cf "$NOPASSWD_FILE" >/dev/null 2>&1; then
         as_root rm -f "$NOPASSWD_FILE" 2>/dev/null || true
-        warn "免密规则没通过 visudo 校验，已删除，后面可能会多问几次密码"
+        warn "$(t "免密规则没通过 visudo 校验，已删除" "NOPASSWD rule failed visudo check; removed")"
         return 0
     fi
 
     as_root chmod 440 "$NOPASSWD_FILE"
     NOPASSWD_ACTIVE=1
     export NOPASSWD_ACTIVE
-    success "安装期间免密（退出时自动删除 $NOPASSWD_FILE）"
+    success "$(t "安装期间免密（退出时删除）" "passwordless sudo active (removed on exit)")"
 }
 
 cleanup_nopasswd() {
