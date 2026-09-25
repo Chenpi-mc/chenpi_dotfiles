@@ -151,20 +151,23 @@ git push                                       # 3. 推送
 
 ## 反过来：把仓库里的配置装到新机器
 
-上面讲的是「本机 → GitHub」。反向操作（一台干净的新机器 → 恢复成现在这样）用仓库里的 `arch-install.sh`：
+上面讲的是「本机 → GitHub」。反向操作（一台干净的新机器 → 恢复成现在这样）用仓库里的 `install.sh`：
 
 ```bash
 git clone https://github.com/Chenpi-mc/chenpi_dotfiles
 cd chenpi_dotfiles
-./arch-install.sh
+./install.sh
 ```
 
-它自己会处理这些事，不用你操心：
+`./arch-install.sh` 是个转发壳，跑它跟跑 `./install.sh` 一回事。
+
+它是一堆模块按顺序跑的（`scripts/` 里一个文件一个模块），这些事它自己会处理：
 
 - **装前自动备份**——现有配置打包成 `~/dotfiles-backup-时间戳.tar.gz`
-- **断点续传**——中途失败或断网，重跑会跳过已完成的步骤（`--force` 可强制全部重来）
+- **断点续传**——中途失败或断网，重跑会跳过已完成的模块（`--force` 强制全部重来，`--list` 可以先看会跑哪些）
 - **AUR 助手自己装**——先看已配置的源里有没有 yay / paru（archlinuxcn 这类社区源就有），源里真没有才从 AUR 自举 `yay-bin`
 - **临时免密**——安装期间不反复问密码，退出时自动删掉规则
+- **改系统前先打快照**——根分区是 btrfs 就配好 snapper，动配置前留还原点
 - **装后对账**——逐个核对包在不在，缺的列出来
 
 要同步哪些软件、壁纸在哪，都写在 `apps.conf` 里，两个脚本共用这一份清单。详细说明见 `README.md`。
