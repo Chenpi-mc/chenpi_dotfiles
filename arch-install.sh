@@ -170,15 +170,31 @@ do_backup() {
 }
 
 # ---------------------------- 步骤：AUR 助手 ----------------------------
-# 新装的 Arch 没有 yay/paru。不想像 shorin 那样加第三方源（绑别人的 GPG key），
-# 就走标准做法：从 AUR 自举 yay-bin。makepkg 不能以 root 跑，所以这里要切回用户。
+# 顺序很重要：先看已配置的源里有没有（archlinuxcn 这类社区源自带预编译的 yay/paru），
+# 源里确实没有才从 AUR 自举。makepkg 不能以 root 跑，所以自举时要切回用户。
 ensure_aur_helper() {
   if command -v yay >/dev/null 2>&1 || command -v paru >/dev/null 2>&1; then
     ok "AUR 助手已存在，跳过"
     return 0
   fi
 
-  log "没找到 yay / paru，从 AUR 自举 yay-bin"
+  # 已配置的源里能查到就直接装，别绕 AUR 编译
+  local from_repo=() h
+  for h in yay paru; do
+    if pacman -Si "$h" >/dev/null 2>&1; then from_repo+=("$h"); fi
+  done
+
+  if [ ${#from_repo[@]} -gt 0 ]; then
+    log "从已配置的源安装：${from_repo[*]}"
+    as_root pacman -S --needed --noconfirm "${from_repo[@]}"
+    if command -v yay >/dev/null 2>&1 || command -v paru >/dev/null 2>&1; then
+      ok "AUR 助手装好了"
+      return 0
+    fi
+    warn "源里装了但命令还是找不到，接着试 AUR 自举"
+  fi
+
+  log "已配置的源里没有 yay / paru，从 AUR 自举 yay-bin"
   as_root pacman -S --needed --noconfirm base-devel git
 
   local tmp
