@@ -54,17 +54,17 @@ write_log() {
 }
 
 # ------------------------------- 输出函数 -------------------------------
-hr() { printf "${H_GRAY}%*s${NC}\n" "${COLUMNS:-80}" '' | tr ' ' '─'; }
+# 分隔线：只进日志，不上屏（屏幕只留命令和结果）
+hr() { write_log "HR" "----------------------------------------"; }
 
+# 分节标题：一行，别搞框
 section() {
     local title="$1" subtitle="${2:-}"
-    echo ""
-    echo -e "${H_PURPLE}╭──────────────────────────────────────────────────────────────────────────────╮${NC}"
-    echo -e "${H_PURPLE}│${NC} ${BOLD}${H_WHITE}${title}${NC}"
     if [ -n "$subtitle" ]; then
-        echo -e "${H_PURPLE}│${NC} ${H_CYAN}${subtitle}${NC}"
+        echo -e "\n${H_PURPLE}==>${NC} ${BOLD}${title}${NC} ${DIM}${subtitle}${NC}"
+    else
+        echo -e "\n${H_PURPLE}==>${NC} ${BOLD}${title}${NC}"
     fi
-    echo -e "${H_PURPLE}╰──────────────────────────────────────────────────────────────────────────────╯${NC}"
     write_log "SECTION" "$title — $subtitle"
 }
 
@@ -73,9 +73,13 @@ info_kv() {
     write_log "INFO" "$1=$2"
 }
 
+# log 只写日志文件，不上屏（屏幕只留命令和结果）。
+# 想连解说一起看：CHENPI_VERBOSE=1 ./install.sh
 log() {
-    echo -e "   $ARROW $1"
     write_log "LOG" "$1"
+    if [ "${CHENPI_VERBOSE:-0}" = "1" ]; then
+        echo -e "   ${DIM}$1${NC}"
+    fi
 }
 
 success() {
@@ -96,17 +100,23 @@ error() {
 }
 
 # ------------------------------- 命令执行器 -------------------------------
-# 带边框显示正在做什么，同时写日志，返回原命令的退出码
+# 只打命令本身，成功不吭声，失败报一行
 exe() {
-    echo -e "   ${H_GRAY}┌──[ ${H_PURPLE}执行${H_GRAY} ]───────────────────────────────────────────────${NC}"
-    echo -e "   ${H_GRAY}│${NC} ${H_CYAN}\$${NC} ${BOLD}$*${NC}"
+    # as_root/as_user 是我们自己的封装，屏上要还原成真实命令
+    local shown=()
+    case "${1:-}" in
+        as_root)
+            if [ "${RUN_AS_ROOT:-0}" -eq 1 ]; then shown=("${@:2}"); else shown=(sudo "${@:2}"); fi
+            ;;
+        as_user) shown=("${@:2}") ;;
+        *)       shown=("$@") ;;
+    esac
+    echo -e "   ${H_CYAN}\$${NC} ${shown[*]}"
     write_log "EXEC" "$*"
     "$@"
     local status=$?
-    if [ $status -eq 0 ]; then
-        echo -e "   ${H_GRAY}└─────────────────────────────────────────────${H_GREEN}成功${H_GRAY} ─┘${NC}"
-    else
-        echo -e "   ${H_GRAY}└─────────────────────────────────────────────${H_RED}失败${H_GRAY} ─┘${NC}"
+    if [ $status -ne 0 ]; then
+        echo -e "   ${H_RED}${CROSS} $(t "失败" "failed") ($status)${NC}"
         write_log "FAIL" "exit $status: $*"
     fi
     return $status
@@ -334,7 +344,8 @@ pac_install() {
     fi
 
     verify_add "${valid[@]}"
-    write_log "PAC" "安装 ${#valid[@]} 个官方源包"
+    write_log "PAC" "安装 ${#valid[@]} 个官方源包：${valid[*]}"
+    echo -e "   ${H_CYAN}\$${NC} pacman -S --needed --noconfirm <$(t "${#valid[@]} 个包" "${#valid[@]} packages")>"
     if ! printf '%s\n' "${valid[@]}" | as_root pacman -S --needed --noconfirm -; then
         warn "$(t "整批失败，改成逐个装" "batch failed; installing one by one")"
         local failed=()
@@ -359,6 +370,7 @@ aur_install() {
     fi
     verify_add "${pkgs[@]}"
     write_log "AUR" "安装 ${#pkgs[@]} 个 AUR 包：${pkgs[*]}"
+    echo -e "   ${H_CYAN}\$${NC} $AUR_HELPER -S --needed --noconfirm <$(t "${#pkgs[@]} 个包" "${#pkgs[@]} packages")>"
     if ! "$AUR_HELPER" -S --needed --noconfirm "${pkgs[@]}"; then
         warn "$(t "整批失败，改成逐个装" "batch failed; installing one by one")"
         local p failed=()

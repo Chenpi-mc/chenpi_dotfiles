@@ -17,11 +17,11 @@ export TARGET_HOME="${TARGET_HOME:-$HOME}"
 # ==============================================================================
 
 require_arch
-section "$(t "基础系统配置" "Base system")" "$(t "更新 · 编辑器 · 字体 · locale · 社区源 · AUR" "update · editor · fonts · locale · repo · AUR")"
+log "$(t "基础系统配置" "Base system") — $(t "更新 · 编辑器 · 字体 · locale · 社区源 · AUR" "update · editor · fonts · locale · repo · AUR")"
 
 # --- 1. 系统更新 ---
 # keyring 太旧会直接卡在 "invalid or corrupted package (PGP signature)"，先单独升它。
-section "$(t "步骤 1/8" "Step 1/8")" "$(t "系统更新与 keyring" "Update & keyring")"
+log "$(t "步骤 1/8" "Step 1/8") — $(t "系统更新与 keyring" "Update & keyring")"
 
 log "$(t "先更新 archlinux-keyring（避免 PGP 签名失败）" "Updating archlinux-keyring first (avoids PGP failures)")"
 pac_install archlinux-keyring || true
@@ -41,7 +41,7 @@ fi
 
 # --- 2. 全局默认编辑器 ---
 # 参考项目弹菜单选；这里简化成谁在就用谁，都没有才装 vim。
-section "$(t "步骤 2/8" "Step 2/8")" "$(t "默认编辑器" "Default editor")"
+log "$(t "步骤 2/8" "Step 2/8") — $(t "默认编辑器" "Default editor")"
 
 TARGET_EDITOR=""
 for _cand in nvim vim vi; do
@@ -62,7 +62,7 @@ fi
 if [ -z "$TARGET_EDITOR" ]; then
     warn "$(t "编辑器还是没装上，跳过 EDITOR 设置" "No editor available; skipping EDITOR")"
 else
-    info_kv "$(t "选用的编辑器" "Editor")" "$TARGET_EDITOR" "$(t "自动检测" "auto-detected")"
+    log "$(t "选用的编辑器" "Editor"): $TARGET_EDITOR（$(t "自动检测" "auto-detected")）"
 
     if as_root grep -q '^EDITOR=' /etc/environment 2>/dev/null; then
         if as_root grep -q "^EDITOR=${TARGET_EDITOR}$" /etc/environment 2>/dev/null; then
@@ -78,7 +78,7 @@ else
 fi
 
 # --- 3. multilib 仓库（32 位包，wine / 游戏 / 部分 AUR 依赖它） ---
-section "$(t "步骤 3/8" "Step 3/8")" "$(t "multilib 仓库" "multilib repo")"
+log "$(t "步骤 3/8" "Step 3/8") — $(t "multilib 仓库" "multilib repo")"
 
 if grep -q '^\[multilib\]' /etc/pacman.conf; then
     success "$(t "[multilib] 已启用，跳过" "[multilib] already enabled, skipping")"
@@ -99,7 +99,7 @@ else
 fi
 
 # --- 4. 字体 ---
-section "$(t "步骤 4/8" "Step 4/8")" "$(t "字体（中文 + 等宽 + emoji）" "fonts (CJK + mono + emoji)")"
+log "$(t "步骤 4/8" "Step 4/8") — $(t "字体（中文 + 等宽 + emoji）" "fonts (CJK + mono + emoji)")"
 
 # 中文用思源黑/宋（niri + kitty 下字重正常）；noto-cjk 兜生僻字，
 # noto-emoji 防豆腐块，nerd 字体给终端和状态栏的图标字形。
@@ -123,7 +123,7 @@ fi
 success "$(t "字体就绪" "Fonts ready")"
 
 # --- 5. TTY 控制台字体 ---
-section "$(t "步骤 5/8" "Step 5/8")" "$(t "TTY 控制台字体" "TTY console font")"
+log "$(t "步骤 5/8" "Step 5/8") — $(t "TTY 控制台字体" "TTY console font")"
 
 if [ -f /etc/vconsole.conf ] && grep -q '^FONT=' /etc/vconsole.conf; then
     if grep -q '^FONT=ter-v28n' /etc/vconsole.conf; then
@@ -156,7 +156,7 @@ log "$(t "让 systemd-vconsole-setup 重读配置" "Re-reading config via system
 as_root systemctl restart systemd-vconsole-setup >/dev/null 2>&1 || true
 
 # --- 6. locale（目标是中文环境） ---
-section "$(t "步骤 6/8" "Step 6/8")" "$(t "locale（zh_CN.UTF-8）" "locale (zh_CN.UTF-8)")"
+log "$(t "步骤 6/8" "Step 6/8") — $(t "locale（zh_CN.UTF-8）" "locale (zh_CN.UTF-8)")"
 
 NEED_GENERATE=0
 
@@ -202,11 +202,11 @@ if [ -z "${CUR_LANG:-}" ] || [ "$CUR_LANG" = "C" ] || [ "$CUR_LANG" = "POSIX" ];
     fi
     success "$(t "默认语言 = zh_CN.UTF-8（重新登录后生效）" "Default language = zh_CN.UTF-8 (on re-login)")"
 else
-    info_kv "$(t "默认语言" "Default language")" "$CUR_LANG" "$(t "保持不动" "left as is")"
+    log "$(t "默认语言" "Default language"): $CUR_LANG（$(t "保持不动" "left as is")）"
 fi
 
 # --- 7. archlinuxcn 社区源 ---
-section "$(t "步骤 7/8" "Step 7/8")" "$(t "archlinuxcn 社区源" "archlinuxcn repo")"
+log "$(t "步骤 7/8" "Step 7/8") — $(t "archlinuxcn 社区源" "archlinuxcn repo")"
 
 # 用它是因为 yay / paru / archlinuxcn-keyring 现成（ensure_aur_helper 也会先看源）。
 # 公共社区源，不是 shorin 的私有源；不写 USTC（超时）和 QLU（404）。
@@ -242,7 +242,7 @@ else
 fi
 
 # --- 8. AUR 助手 ---
-section "$(t "步骤 8/8" "Step 8/8")" "$(t "AUR 助手" "AUR helper")"
+log "$(t "步骤 8/8" "Step 8/8") — $(t "AUR 助手" "AUR helper")"
 
 # 交给 ensure_aur_helper：先看已配置的源，真没有才从 AUR 自举 yay-bin，
 # 并处理 makepkg 不许用 root（root 跑时切回 TARGET_USER）。
@@ -254,9 +254,9 @@ else
 fi
 
 # --- 收尾 ---
-section "$(t "01a 完成" "01a done")" "$(t "基础配置汇总" "Summary")"
-info_kv "$(t "编辑器" "Editor")" "${TARGET_EDITOR:-$(t "未设置" "unset")}"
-info_kv "$(t "locale" "locale")" "en_US.UTF-8 + zh_CN.UTF-8"
+log "$(t "01a 完成" "01a done") — $(t "基础配置汇总" "Summary")"
+log "$(t "编辑器" "Editor"): ${TARGET_EDITOR:-$(t "未设置" "unset")}"
+log "$(t "locale" "locale"): en_US.UTF-8 + zh_CN.UTF-8"
 info_kv "$(t "默认语言" "Default language")" "$(as_root sed -n 's/^LANG=//p' /etc/locale.conf 2>/dev/null | head -n 1 || true)"
 info_kv "$(t "AUR 助手" "AUR helper")" "${AUR_HELPER:-$(t "无" "none")}"
 info_kv "$(t "日志" "Log")" "$LOG_FILE"

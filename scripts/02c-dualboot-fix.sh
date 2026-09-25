@@ -16,7 +16,7 @@ source "$SCRIPT_DIR/00-utils.sh"
 # ==============================================================================
 
 # 0. 是不是 GRUB 启动
-section "$(t "02c · 准备" "02c · Prep")" "$(t "检查引导器" "Bootloader check")"
+log "$(t "02c · 准备：检查引导器" "02c · prep: bootloader check")"
 
 if ! command -v grub-mkconfig >/dev/null 2>&1 || [ ! -f /etc/default/grub ]; then
     warn "$(t "没检测到 GRUB（grub-mkconfig 或 /etc/default/grub 缺失）" "No GRUB (grub-mkconfig or /etc/default/grub missing)")"
@@ -26,7 +26,7 @@ fi
 success "$(t "检测到 GRUB" "GRUB found")"
 
 # 1. 装探测 Windows 需要的工具
-section "$(t "02c · 步骤 1/3" "02c · Step 1/3")" "$(t "安装 os-prober" "Install os-prober")"
+log "$(t "02c · 步骤 1/3：安装 os-prober" "02c · step 1/3: install os-prober")"
 
 # os-prober 要挂载分区读引导文件，没有 NTFS / exFAT 支持就读不动 Windows 分区（会报挂载失败）
 log "$(t "装 os-prober 和文件系统工具" "Installing os-prober and fs tools")"
@@ -40,7 +40,7 @@ fi
 success "$(t "os-prober 就绪" "os-prober ready")"
 
 # 2. 扫描 Windows
-section "$(t "02c · 步骤 2/3" "02c · Step 2/3")" "$(t "扫描其他操作系统" "Scan for other OSes")"
+log "$(t "02c · 步骤 2/3：扫描其他操作系统" "02c · step 2/3: scan for other OSes")"
 
 # os-prober 必须 root 跑（要挂载分区），可能要十几秒
 log "$(t "开始扫描（有多个分区时会逐个挂载，慢一点正常）" "Scanning (mounts each partition, may take a while)")"
@@ -65,7 +65,7 @@ fi
 success "$(t "找到 Windows" "Windows found")"
 
 # 3. 打开 os-prober + 重建 GRUB
-section "$(t "02c · 步骤 3/3" "02c · Step 3/3")" "$(t "开启 os-prober 并重建菜单" "Enable os-prober and rebuild")"
+log "$(t "02c · 步骤 3/3：开启 os-prober 并重建菜单" "02c · step 3/3: enable os-prober and rebuild")"
 
 GRUB_CONF=/etc/default/grub
 GRUB_BAK=/etc/default/grub.chenpi.bak
@@ -98,7 +98,7 @@ fi
 
 # 幂等校验：这个键最终只应该出现一次（注释不算）
 GRUB_KEY_LINES="$(grep -cE '^[[:space:]]*GRUB_DISABLE_OS_PROBER=' "$GRUB_CONF" || true)"
-info_kv "$(t "配置行数" "Config lines")" "$GRUB_KEY_LINES" "$(t "正常应为 1" "expected 1")"
+log "$(t "GRUB_DISABLE_OS_PROBER 出现 $GRUB_KEY_LINES 行（正常应为 1）" "GRUB_DISABLE_OS_PROBER appears $GRUB_KEY_LINES time(s) (expected 1)")"
 
 # 重建 grub.cfg 才会把 Windows 条目真正写进菜单。
 # 强制 LANG=en_US.UTF-8：某些非 UTF-8 环境下 grub-mkconfig 会告警甚至中断。
@@ -115,7 +115,7 @@ else
 fi
 
 # 收尾
-section "$(t "02c 完成" "02c Done")" "$(t "双系统引导" "Dual-boot")"
+log "$(t "02c 完成：双系统引导" "02c done: dual-boot")"
 success "$(t "Windows 已加入 GRUB 探测范围" "Windows added to GRUB probing")"
 log "$(t "重启后菜单里多出 Windows 项（可能在 Other options 里）" "Reboot to see the Windows entry (maybe in Other options)")"
-info_kv "$(t "备份" "Backup")" "$GRUB_BAK" "$(t "还原：cp 备份回 /etc/default/grub 后重建 grub.cfg" "Restore: cp backup back and rebuild grub.cfg")"
+log "$(t "备份在 $GRUB_BAK；还原：cp 回 /etc/default/grub 后重建 grub.cfg" "backup at $GRUB_BAK; restore: cp back to /etc/default/grub and rebuild grub.cfg")"

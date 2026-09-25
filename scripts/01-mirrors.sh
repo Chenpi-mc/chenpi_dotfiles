@@ -17,7 +17,7 @@ export TARGET_HOME="${TARGET_HOME:-$HOME}"
 # ==============================================================================
 
 require_arch
-section "$(t "镜像源优化" "Mirror optimization")" "$(t "按实测速度重排 mirrorlist" "Re-rank mirrorlist by speed")"
+log "$(t "镜像源优化" "Mirror optimization") — $(t "按实测速度重排 mirrorlist" "Re-rank mirrorlist by speed")"
 
 MIRRORLIST="/etc/pacman.d/mirrorlist"
 # 原始备份：只生成一次，之后绝不覆盖（想回到装机当天的状态就用它）
@@ -66,9 +66,9 @@ case "$TZ_PATH" in
 esac
 
 if [ "$CN" -eq 1 ]; then
-    info_kv "$(t "时区" "Timezone")" "$(basename "${TZ_PATH:-$(t "未知" "unknown")}")" "$(t "国内镜像优先" "China mirrors first")"
+    log "$(t "时区" "Timezone"): $(basename "${TZ_PATH:-$(t "未知" "unknown")}")（$(t "国内镜像优先" "China mirrors first")）"
 else
-    info_kv "$(t "时区" "Timezone")" "$(basename "${TZ_PATH:-$(t "未知" "unknown")}")" "$(t "按国家自动筛" "auto-pick by country")"
+    log "$(t "时区" "Timezone"): $(basename "${TZ_PATH:-$(t "未知" "unknown")}")（$(t "按国家自动筛" "auto-pick by country")）"
 fi
 
 # --- 2. 确保 reflector 在 ---
@@ -120,7 +120,7 @@ else
     # 只留大写字母，避免把 HTML / 报错当成国家码
     CC="$(printf '%s' "$CC" | tr -cd 'A-Z' || true)"
     if [ "${#CC}" -eq 2 ]; then
-        info_kv "$(t "识别到的国家" "Detected country")" "$CC" "$(t "按它筛镜像" "filtered by it")"
+        log "$(t "识别到的国家" "Detected country"): $CC（$(t "按它筛镜像" "filtered by it")）"
         log "$(t "第一轮：只取 $CC 镜像，按速度排序" "Round 1: $CC mirrors, sorted by rate")"
         if as_root reflector --protocol https --country "$CC" --age 12 --number 10 --sort rate --save "$TMP_NEW"; then
             GEN_OK=1
@@ -150,7 +150,7 @@ fi
 # --- 5. 校验生成结果（reflector 中途挂掉会留半截文件，不能直接信） ---
 SERVER_COUNT="$(grep -c '^[[:space:]]*Server' "$TMP_NEW" 2>/dev/null || true)"
 SERVER_COUNT="${SERVER_COUNT:-0}"
-info_kv "$(t "生成结果" "Generated")" "$(t "$SERVER_COUNT 个 Server 行" "$SERVER_COUNT Server lines")"
+log "$(t "生成结果" "Generated"): $(t "$SERVER_COUNT 个 Server 行" "$SERVER_COUNT Server lines")"
 
 if [ "$SERVER_COUNT" -lt 3 ]; then
     warn "$(t "只有 $SERVER_COUNT 个 Server 行，太可疑，不动原 mirrorlist" "Only $SERVER_COUNT Server lines; original mirrorlist untouched")"

@@ -23,6 +23,9 @@ export TARGET_USER TARGET_HOME RUN_AS_ROOT
 REPORT="${PREFLIGHT_REPORT:-/tmp/chenpi-preflight.txt}"
 : > "$REPORT"
 
+# PREFLIGHT_QUIET=1：只在屏幕上打「注意/致命」，详细清单只看报告文件
+QUIET="${PREFLIGHT_QUIET:-0}"
+
 CRITICAL_COUNT=0
 WARN_COUNT=0
 
@@ -31,8 +34,17 @@ report_add() {
 }
 check() {
     local k="$1" v="$2" note="${3:-}"
-    info_kv "$k" "$v" "$note"
+    if [ "$QUIET" -eq 0 ]; then info_kv "$k" "$v" "$note"; fi
     report_add "$k: $v $note"
+}
+
+# 安静模式下不打印分节标题
+psec() {
+    # 必须写成 if：用 `[ ] && cmd` 的话，条件为假时函数返回 1，set -e 会直接结束脚本
+    if [ "$QUIET" -eq 0 ]; then
+        section "$1" "${2:-}"
+    fi
+    return 0
 }
 critical() {
     CRITICAL_COUNT=$((CRITICAL_COUNT + 1))
@@ -52,7 +64,7 @@ report_add "$(t "装机前检查" "Preflight") $(date '+%Y-%m-%d %H:%M:%S')"
 # ==============================================================================
 # 1. 基础环境
 # ==============================================================================
-section "$(t "1. 基础环境" "1. Base env")" "$(t "发行版 / 内核" "distro / kernel")"
+psec "$(t "1. 基础环境" "1. Base env")" "$(t "发行版 / 内核" "distro / kernel")"
 
 if command -v pacman >/dev/null 2>&1; then
     check "pacman" "$(pacman -V 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)" "$(t "包管理器正常" "pacman ok")"
@@ -76,7 +88,7 @@ fi
 # ==============================================================================
 # 2. 硬件
 # ==============================================================================
-section "$(t "2. 硬件" "2. Hardware")" "$(t "CPU / 内存 / 显卡" "CPU / RAM / GPU")"
+psec "$(t "2. 硬件" "2. Hardware")" "$(t "CPU / 内存 / 显卡" "CPU / RAM / GPU")"
 
 if [ -r /proc/cpuinfo ]; then
     cpu_model="$(awk -F': ' '/^model name/{print $2; exit}' /proc/cpuinfo)"
@@ -111,7 +123,7 @@ fi
 # ==============================================================================
 # 3. 磁盘
 # ==============================================================================
-section "$(t "3. 磁盘" "3. Disk")" "$(t "空间" "space")"
+psec "$(t "3. 磁盘" "3. Disk")" "$(t "空间" "space")"
 
 root_fs="$(findmnt -no FSTYPE / 2>/dev/null || echo "$(t "未知" "unknown")")"
 check "$(t "根分区文件系统" "root fs")" "$root_fs" "$(findmnt -no SOURCE / 2>/dev/null)"
@@ -155,7 +167,7 @@ fi
 # ==============================================================================
 # 4. 引导
 # ==============================================================================
-section "$(t "4. 引导" "4. Boot")" "$(t "固件 / 引导器" "firmware / bootloader")"
+psec "$(t "4. 引导" "4. Boot")" "$(t "固件 / 引导器" "firmware / bootloader")"
 
 if [ -d /sys/firmware/efi ]; then
     check "$(t "固件" "firmware")" "UEFI" ""
@@ -186,7 +198,7 @@ fi
 # ==============================================================================
 # 5. 桌面现状
 # ==============================================================================
-section "$(t "5. 桌面现状" "5. Desktop")" ""
+psec "$(t "5. 桌面现状" "5. Desktop")" ""
 
 check_dm_conflict
 if [ -n "${DM_FOUND:-}" ]; then
@@ -220,7 +232,7 @@ fi
 # ==============================================================================
 # 6. 网络
 # ==============================================================================
-section "$(t "6. 网络" "6. Network")" "$(t "镜像源" "mirrors")"
+psec "$(t "6. 网络" "6. Network")" "$(t "镜像源" "mirrors")"
 
 if command -v curl >/dev/null 2>&1; then
     if curl -sI --max-time 10 https://geo.mirror.pkgbuild.com/core/os/x86_64/core.db >/dev/null 2>&1; then
@@ -244,7 +256,7 @@ fi
 # ==============================================================================
 # 7. 系统设置与依赖
 # ==============================================================================
-section "$(t "7. 系统设置" "7. System")" "$(t "时区 / 语言" "timezone / locale")"
+psec "$(t "7. 系统设置" "7. System")" "$(t "时区 / 语言" "timezone / locale")"
 
 check "$(t "时区" "timezone")" "$(timedatectl show -p Timezone --value 2>/dev/null || cat /etc/timezone 2>/dev/null || echo "$(t "未知" "unknown")")" ""
 check "LANG" "${LANG:-$(t "未设置" "unset")}" ""
@@ -276,7 +288,7 @@ fi
 # ==============================================================================
 # 8. 现有配置与仓库自检
 # ==============================================================================
-section "$(t "8. 现有配置" "8. Existing config")" "$(t "覆盖前先看清" "will be overwritten")"
+psec "$(t "8. 现有配置" "8. Existing config")" "$(t "覆盖前先看清" "will be overwritten")"
 
 if [ -d "$TARGET_HOME/.config" ]; then
     exist_n="$(ls -A "$TARGET_HOME/.config" 2>/dev/null | wc -l || true)"
@@ -318,7 +330,7 @@ fi
 # ==============================================================================
 # 结论
 # ==============================================================================
-section "$(t "检查结论" "Summary")" ""
+psec "$(t "检查结论" "Summary")" ""
 
 report_add ""
 report_add "$(t "致命问题 $CRITICAL_COUNT 个 / 注意项 $WARN_COUNT 个" "$CRITICAL_COUNT critical / $WARN_COUNT warnings")"

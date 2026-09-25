@@ -20,7 +20,7 @@ fi
 WALLPAPER_DIR="${WALLPAPER_DIR:-chenpi_file/wallpaper}"
 
 require_arch
-section "$(t "装后对账" "Post-install check")" "$(t "软件包 + 关键配置 + 壁纸" "packages + key configs + wallpapers")"
+log "$(t "装后对账：软件包 + 关键配置 + 壁纸" "post-install check: packages + key configs + wallpapers")"
 
 # FAILED=1 表示这次对账有缺失，模块最后 exit 1
 FAILED=0
@@ -30,7 +30,7 @@ MISSING_PATHS=()
 # ------------------------------- 1. 软件包对账 -------------------------------
 hr
 log "$(t "第一步：核对这次登记要装的软件包" "Step 1: check registered packages")"
-info_kv "$(t "对账清单" "checklist")" "$VERIFY_LIST"
+log "$(t "对账清单：$VERIFY_LIST" "checklist: $VERIFY_LIST")"
 
 if [ ! -f "$VERIFY_LIST" ]; then
     # 清单不存在不算失败：可能是所有装包模块都跳过了
@@ -79,7 +79,7 @@ fi
 # ------------------------------- 2. 关键配置 -------------------------------
 hr
 log "$(t "第二步：核对关键配置文件（由 04 模块恢复）" "Step 2: check key configs (restored by module 04)")"
-info_kv "$(t "目标用户" "target user")" "${TARGET_USER:-$(t "未知" "unknown")}" "$TARGET_HOME"
+log "$(t "目标用户：${TARGET_USER:-未知}（$TARGET_HOME）" "target user: ${TARGET_USER:-unknown} ($TARGET_HOME)")"
 
 # 只挑“没有它就没法用”的关键路径，不查 apps.conf 里几十项 —— 否则任何一个
 # 可选配置没同步都会让对账失败，太吵。每条格式：相对 ~/.config 的路径|给人看的说明
@@ -121,7 +121,7 @@ case "$WALLPAPER_DIR" in
     /*) WALLPAPER_PATH="$WALLPAPER_DIR" ;;
     *)  WALLPAPER_PATH="$TARGET_HOME/$WALLPAPER_DIR" ;;
 esac
-info_kv "$(t "壁纸目录" "wallpaper dir")" "$WALLPAPER_PATH"
+log "$(t "壁纸目录：$WALLPAPER_PATH" "wallpaper dir: $WALLPAPER_PATH")"
 
 if [ ! -d "$WALLPAPER_PATH" ]; then
     echo -e "   $CROSS ${H_YELLOW}$(t "壁纸目录不存在：$WALLPAPER_PATH" "wallpaper dir missing: $WALLPAPER_PATH")${NC}"
@@ -143,7 +143,7 @@ fi
 
 # ------------------------------- 汇总 -------------------------------
 hr
-section "$(t "对账结果" "Check result")" "$(t "最后一步，不装任何包" "runs last, installs nothing")"
+log "$(t "对账结果：最后一步，不装任何包" "check result: runs last, installs nothing")"
 
 if [ "$FAILED" -eq 0 ]; then
     success "$(t "对账全部通过：软件包、关键配置、壁纸都到位" "all checks passed: packages, configs, wallpapers")"

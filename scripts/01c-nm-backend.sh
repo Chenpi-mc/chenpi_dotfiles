@@ -18,7 +18,7 @@ export TARGET_HOME="${TARGET_HOME:-$HOME}"
 # ==============================================================================
 
 require_arch
-section "$(t "网络后端（可选）" "Network backend (optional)")" "$(t "Wi-Fi 后端 → iwd" "Wi-Fi backend → iwd")"
+log "$(t "网络后端（可选）" "Network backend (optional)") — $(t "Wi-Fi 后端 → iwd" "Wi-Fi backend → iwd")"
 
 NM_CONF_DIR="/etc/NetworkManager/conf.d"
 IWD_CONF="$NM_CONF_DIR/iwd.conf"
@@ -29,7 +29,7 @@ if ! has_pkg networkmanager && ! command -v NetworkManager >/dev/null 2>&1; then
     warn "$(t "没有 NetworkManager，整块跳过" "NetworkManager not found, skipping")"
     exit 0
 fi
-info_kv "$(t "NetworkManager" "NetworkManager")" "$(t "已安装" "installed")"
+log "$(t "NetworkManager" "NetworkManager"): $(t "已安装" "installed")"
 
 # --- 2. 看现状：iwd 装了没 / 后端是不是已经指到 iwd ---
 IWD_PRESENT=0
@@ -131,8 +131,8 @@ fi
 # 故意不重启 NetworkManager：现在重启会当场断网（你可能正靠网络跑安装）
 log "$(t "不重启 NetworkManager（避免当场断网），重启后新后端生效" "Not restarting NetworkManager (would drop the network); applies after reboot")"
 
-section "$(t "01c 完成" "01c done")" "$(t "网络后端汇总" "Summary")"
-info_kv "$(t "iwd" "iwd")" "$(t "已安装" "installed")"
+log "$(t "01c 完成" "01c done") — $(t "网络后端汇总" "Summary")"
+log "$(t "iwd" "iwd"): $(t "已安装" "installed")"
 info_kv "$(t "后端配置" "Backend config")" "$IWD_CONF"
 info_kv "$(t "连接备份" "Profile backup")" "$NM_BAK_DIR" "$(t "换后端时清掉的旧 Wi-Fi 配置" "old Wi-Fi profiles cleared on switch")"
 info_kv "$(t "生效时机" "Takes effect")" "$(t "重启后" "after reboot")"

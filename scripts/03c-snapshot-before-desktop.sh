@@ -28,7 +28,7 @@ require_arch
 SNAP_ROOT_DESC="chenpi-桌面改动前"
 SNAP_HOME_DESC="chenpi-桌面改动前"
 
-section "$(t "阶段 3c" "Stage 3c")" "$(t "桌面改动前的还原点" "snapshot before desktop changes")"
+log "$(t "阶段 3c：桌面改动前的还原点" "Stage 3c: snapshot before desktop changes")"
 
 # TARGET_USER / TARGET_HOME 由主控 detect_target_user export；单独手跑本模块时
 # 它们是空的，这里自己检测一次（免得读到空变量报一堆怪错）
@@ -36,8 +36,8 @@ if [ -z "${TARGET_USER:-}" ]; then
     log "$(t "没读到 TARGET_USER（多半是单独跑了本模块），自己检测一次" "TARGET_USER unset (standalone run) — detecting it")"
     detect_target_user
 fi
-info_kv "$(t "目标用户" "target user")" "$TARGET_USER" "$TARGET_HOME"
-info_kv "$(t "配置仓库" "repo")" "$REPO_ROOT"
+log "$(t "目标用户：$TARGET_USER（$TARGET_HOME）" "target user: $TARGET_USER ($TARGET_HOME)")"
+log "$(t "配置仓库：$REPO_ROOT" "repo: $REPO_ROOT")"
 
 if [ ! -d "${TARGET_HOME:-}" ]; then
     error "$(t "找不到 $TARGET_USER 的家目录（TARGET_HOME=${TARGET_HOME:-空}）" "no home directory for $TARGET_USER (TARGET_HOME=${TARGET_HOME:-empty})")"

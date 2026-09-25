@@ -21,7 +21,7 @@ STAMP="$(date +%Y%m%d-%H%M%S)"
 require_arch
 
 # ---- 0. 确认是 GRUB 引导 ----
-section "$(t "第 0 步" "Step 0")" "$(t "确认引导方式" "detect bootloader")"
+log "$(t "第 0 步：确认引导方式" "step 0: detect bootloader")"
 
 # /boot/grub/grub.cfg 不存在说明引导器不是 GRUB（systemd-boot / UKI / rEFInd）。
 # 这时改 /etc/default/grub 毫无意义，只会留一堆没人读的垃圾配置 → 直接跳过。
@@ -41,7 +41,7 @@ fi
 success "$(t "确认是 GRUB 引导" "GRUB detected")"
 
 # ---- 1. 找现成主题，没有就装一个 ----
-section "$(t "第 1 步" "Step 1")" "$(t "准备主题文件" "prepare theme files")"
+log "$(t "第 1 步：准备主题文件" "step 1: prepare theme files")"
 
 # 两个候选目录：/boot/grub/themes（在 GRUB 的 prefix 里，一定读得到，优先用）、
 # /usr/share/grub/themes（官方主题包和 grub 自带 starfield 装的地方）
@@ -107,7 +107,7 @@ else
 fi
 
 # ---- 2. 定下 theme.txt 的最终路径 ----
-section "$(t "第 2 步" "Step 2")" "$(t "确定 theme.txt 路径" "resolve theme.txt path")"
+log "$(t "第 2 步：确定 theme.txt 路径" "step 2: resolve theme.txt path")"
 
 THEME_TXT="$THEME_DIR/theme.txt"
 
@@ -136,8 +136,8 @@ else
     log "$(t "主题已在 GRUB 的 prefix 里，不用拷" "theme already in GRUB prefix")"
 fi
 
-info_kv "$(t "主题名" "theme")" "$THEME_NAME"
-info_kv "$(t "主题文件" "theme file")" "$THEME_TXT"
+log "$(t "主题名：$THEME_NAME" "theme name: $THEME_NAME")"
+log "$(t "主题文件：$THEME_TXT" "theme file: $THEME_TXT")"
 
 if [ ! -f "$THEME_TXT" ]; then
     warn "$(t "theme.txt 不在了，跳过配置" "theme.txt is gone, skipping")"
@@ -145,7 +145,7 @@ if [ ! -f "$THEME_TXT" ]; then
 fi
 
 # ---- 3. 改 /etc/default/grub ----
-section "$(t "第 3 步" "Step 3")" "$(t "配置 $GRUB_CONF" "edit $GRUB_CONF")"
+log "$(t "第 3 步：配置 $GRUB_CONF" "step 3: edit $GRUB_CONF")"
 
 if [ ! -f "$GRUB_CONF" ]; then
     warn "$(t "$GRUB_CONF 不存在 —— GRUB 机器一般都有，系统状态有点怪" "$GRUB_CONF missing, system looks odd")"
@@ -179,12 +179,12 @@ else
     # 改系统文件之前先按时间戳备份一份，写坏了还能 cp 回来
     BACKUP_FILE="$GRUB_CONF.bak.$STAMP"
     as_root cp -a "$GRUB_CONF" "$BACKUP_FILE" || warn "$(t "备份失败，继续（下面的改动请自己留意）" "backup failed, continuing (mind the changes)")"
-    info_kv "$(t "改前备份" "backup")" "$BACKUP_FILE"
+    log "$(t "改前备份：$BACKUP_FILE" "backup before edit: $BACKUP_FILE")"
 
     if [ "$CURRENT_LINE" = "$WANT_LINE" ]; then
         log "$(t "GRUB_THEME 本来就是对的，跳过改写" "GRUB_THEME already correct")"
     else
-        info_kv "$(t "原 GRUB_THEME" "old GRUB_THEME")" "${CURRENT_LINE:-$(t "（没有这一项）" "(not set)")}"
+        log "$(t "原 GRUB_THEME：${CURRENT_LINE:-（没设）}" "old GRUB_THEME: ${CURRENT_LINE:-not set}")"
         if set_grub_key "GRUB_THEME" "$THEME_TXT"; then
             success "$(t "GRUB_THEME 已指向 $THEME_TXT" "GRUB_THEME -> $THEME_TXT")"
         else
@@ -214,7 +214,7 @@ else
 fi
 
 # ---- 4. 生成 grub.cfg ----
-section "$(t "第 4 步" "Step 4")" "$(t "重新生成 grub.cfg" "regenerate grub.cfg")"
+log "$(t "第 4 步：重新生成 grub.cfg" "step 4: regenerate grub.cfg")"
 
 # grub-mkconfig 本身幂等，配置没变也照样重建一次，保证 grub.cfg 不会留在旧状态
 if exe as_root grub-mkconfig -o /boot/grub/grub.cfg; then
@@ -226,13 +226,13 @@ else
     warn "$(t "手动跑一次看报错：sudo grub-mkconfig -o /boot/grub/grub.cfg" "run it manually: sudo grub-mkconfig -o /boot/grub/grub.cfg")"
 fi
 
-section "$(t "完成" "Done")" "$(t "GRUB 主题" "GRUB theme")"
-info_kv "$(t "主题" "theme")" "$THEME_NAME"
-info_kv "$(t "主题文件" "theme file")" "$THEME_TXT"
+log "$(t "完成：GRUB 主题" "done: GRUB theme")"
+log "$(t "主题：$THEME_NAME" "theme: $THEME_NAME")"
+log "$(t "主题文件：$THEME_TXT" "theme file: $THEME_TXT")"
 if [ -n "$BACKUP_FILE" ]; then
-    info_kv "$(t "改前备份" "backup")" "$BACKUP_FILE" "$(t "还原就 cp 回去再 grub-mkconfig" "restore: cp back and grub-mkconfig")"
+    log "$(t "改前备份：$BACKUP_FILE（还原就 cp 回去再 grub-mkconfig）" "backup: $BACKUP_FILE (restore: cp back and run grub-mkconfig)")"
 else
-    info_kv "$(t "配置改动" "changes")" "$(t "无（本来就是这套配置）" "none (already correct)")"
+    log "$(t "配置改动：无（本来就是这套配置）" "changes: none (already correct)")"
 fi
 
 exit 0

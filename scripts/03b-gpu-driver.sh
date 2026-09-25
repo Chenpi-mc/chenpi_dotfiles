@@ -17,15 +17,15 @@ source "$SCRIPT_DIR/00-utils.sh"
 # ==============================================================================
 
 # 0. 前置检查
-section "$(t "03b · 准备" "03b · Prep")" "$(t "环境确认" "Environment check")"
+log "$(t "03b · 准备：环境确认" "03b · prep: environment check")"
 
 # 纯官方源装 chwd 时用不到用户信息，但从 AUR 装就要（makepkg 不能以 root 跑）。
 # 这里只提醒不退出 —— 免得仅因为变量缺失就把官方源这条正路也堵死。
 if [ -z "${TARGET_USER:-}" ]; then
     warn "$(t "TARGET_USER 没设置（正常应由 install.sh 导出）；万一要走 AUR 编译可能失败" "TARGET_USER unset; AUR build may fail")"
 fi
-info_kv "$(t "内核" "Kernel")" "$(uname -r)" "$(t "DKMS 驱动要跟内核匹配" "DKMS drivers must match the kernel")"
-info_kv "$(t "仓库根目录" "Repo root")" "$REPO_ROOT"
+log "$(t "内核 $(uname -r)（DKMS 驱动要跟内核匹配）" "kernel $(uname -r) (DKMS drivers must match)")"
+log "$(t "仓库根目录：$REPO_ROOT" "repo root: $REPO_ROOT")"
 
 # lspci 来自 pciutils，判断显卡型号靠它
 if ! command -v lspci >/dev/null 2>&1; then
@@ -40,7 +40,7 @@ if ! command -v lspci >/dev/null 2>&1; then
 fi
 
 # 1. 检测显卡类型
-section "$(t "03b · 步骤 1/3" "03b · Step 1/3")" "$(t "检测显卡" "Detect GPUs")"
+log "$(t "03b · 步骤 1/3：检测显卡" "03b · step 1/3: detect GPUs")"
 
 GPU_LINES="$(lspci 2>/dev/null | grep -Ei 'vga|3d|display' || true)"
 
@@ -80,10 +80,10 @@ fi
 
 # 顺手列一下已经装了的显卡相关包，方便对比 chwd 装完前后
 INSTALLED_GPU_PKGS="$(pacman -Qq 2>/dev/null | grep -E '^(nvidia|nvidia-open|mesa$|mesa-|vulkan-(intel|radeon)|xf86-video-(amdgpu|intel)|lib32-(mesa|nvidia-utils))' | tr '\n' ' ' || true)"
-info_kv "$(t "已装相关包" "Installed pkgs")" "${INSTALLED_GPU_PKGS:-$(t "无" "none")}" ""
+log "$(t "已装相关包：${INSTALLED_GPU_PKGS:-无}" "installed pkgs: ${INSTALLED_GPU_PKGS:-none}")"
 
 # 2. 安装 chwd
-section "$(t "03b · 步骤 2/3" "03b · Step 2/3")" "$(t "安装 chwd（硬件检测工具）" "Install chwd")"
+log "$(t "03b · 步骤 2/3：安装 chwd（硬件检测工具）" "03b · step 2/3: install chwd")"
 
 # 已经装过就别再动：chwd 自己会跟着系统升级走
 if command -v chwd >/dev/null 2>&1 || has_pkg chwd; then
@@ -110,7 +110,7 @@ else
 fi
 
 # 3. 让 chwd 自动装驱动
-section "$(t "03b · 步骤 3/3" "03b · Step 3/3")" "$(t "自动配置显卡驱动" "Auto-configure GPU drivers")"
+log "$(t "03b · 步骤 3/3：自动配置显卡驱动" "03b · step 3/3: auto-configure GPU drivers")"
 
 if [ "$CHWD_OK" -eq 1 ]; then
     # --list 只列出能识别的配置，只读、不装东西；老版本可能没这个参数，失败也无所谓
@@ -138,7 +138,7 @@ if command -v lspci >/dev/null 2>&1; then
 fi
 
 # 收尾：按检测结果给手动兜底方案
-section "$(t "03b 完成" "03b Done")" "$(t "结果与手动兜底" "Result and fallbacks")"
+log "$(t "03b 完成：结果与手动兜底" "03b done: result and fallbacks")"
 
 if [ "$IS_INTEL" -eq 1 ]; then
     info_kv "$(t "Intel 核显" "Intel iGPU")" "mesa vulkan-intel" "$(t "一般随系统已装好" "usually already installed")"
@@ -153,4 +153,4 @@ fi
 
 log "$(t "装完建议重启再验证：NVIDIA 用 nvidia-smi，通用用 glxinfo -B" "Reboot to verify: nvidia-smi or glxinfo -B")"
 log "$(t "niri 黑屏先查报错：journalctl -b -p err | grep -iE 'nvidia|amdgpu|i915|xe'" "niri black screen? check journalctl -b -p err")"
-info_kv "$(t "日志" "Log")" "${LOG_FILE:-}" ""
+log "$(t "日志：${LOG_FILE:-}" "log: ${LOG_FILE:-}")"

@@ -50,11 +50,11 @@ GRUB_OK=1
 # 状态位：root 还原点有没有打上（0 = 没打上，最后要报错退出）
 ROOT_SNAP_OK=1
 
-section "$(t "阶段 0" "Stage 0")" "$(t "Btrfs 快照安全网" "btrfs snapshot safety net")"
-info_kv "$(t "配置仓库" "repo")" "$REPO_ROOT"
+log "$(t "阶段 0：Btrfs 快照安全网" "Stage 0: btrfs snapshot safety net")"
+log "$(t "配置仓库：$REPO_ROOT" "repo: $REPO_ROOT")"
 # 【注意】本模块不碰家目录，TARGET_USER / TARGET_HOME 只是打出来对着日志看。
 # 用 ${X:-} 是因为脚本开了 set -u：单独跑本模块时读到空变量直接就崩了。
-info_kv "$(t "目标用户" "target user")" "${TARGET_USER:-$(t "未设置" "unset")}" "${TARGET_HOME:-}"
+log "$(t "目标用户：${TARGET_USER:-$(t "未设置" "unset")}（${TARGET_HOME:-}）" "target user: ${TARGET_USER:-unset} (${TARGET_HOME:-})")"
 
 # ------------------------------------------------------------------------------
 # 0. 环境判断：根分区不是 btrfs 就整套跳过
@@ -82,7 +82,7 @@ success "$(t "根分区是 Btrfs，继续配置快照安全网" "root fs is btrf
 #     「写 .tmp 再 rename」，文件级软链会被 rename 直接替换掉，链一次坏一次
 #   - 判据用模块目录（*/normal.mod）而不是 grub.cfg：后者谁都能生成，会误判
 #   - /boot/grub 在标准布局下本来就存在，那就什么都不做
-section "$(t "安全网" "Safety net")" "$(t "定位 GRUB 目录" "locate GRUB dir")"
+log "$(t "定位 GRUB 目录" "locate the GRUB dir")"
 
 if command -v grub-mkconfig >/dev/null 2>&1; then
     # 在已挂载的 vfat（ESP）分区里找真正的 GRUB 目录
@@ -112,7 +112,7 @@ if command -v grub-mkconfig >/dev/null 2>&1; then
         fi
     else
         log "$(t "GRUB 装在 ESP 里，/boot/grub 不存在，补一个软链" "GRUB lives in the ESP — creating a /boot/grub symlink")"
-        log "$(t "链上之后 grub-mkconfig / grub-editenv / grub-btrfs 才会写到真正被读的位置" "so grub-mkconfig / grub-editenv / grub-btrfs write where GRUB reads")"
+        log "$(t "让 grub 工具写到真正被读的位置" "so the grub tools write where GRUB reads")"
         if as_root ln -sfn "$ESP_GRUB" "/boot/grub"; then
             success "$(t "已建立软链：/boot/grub -> $ESP_GRUB" "symlink created: /boot/grub -> $ESP_GRUB")"
         else
@@ -128,7 +128,7 @@ fi
 # 2. 装 snapper
 # ------------------------------------------------------------------------------
 # 只装本体；GUI（btrfs-assistant）交给用户自己决定，这里只在最后提示一句。
-section "$(t "第 1 步" "Step 1")" "$(t "安装 snapper" "install snapper")"
+log "$(t "第 1 步：安装 snapper" "Step 1: install snapper")"
 
 if has_pkg snapper; then
     success "$(t "snapper 已经装过了，跳过" "snapper already installed")"
@@ -147,7 +147,7 @@ fi
 # 3. root（/）快照配置
 # ------------------------------------------------------------------------------
 # 幂等判据：list-configs 里已有 root 就直接跳过，绝不动用户调过的参数
-section "$(t "第 2 步" "Step 2")" "$(t "配置 root 快照" "configure root snapshots")"
+log "$(t "第 2 步：配置 root 快照" "Step 2: configure root snapshots")"
 
 if as_root snapper list-configs 2>/dev/null | grep -q '^root '; then
     success "$(t "root 配置已存在，跳过（不动你现有的参数）" "root config exists — skipping (keeps your settings)")"
@@ -197,12 +197,12 @@ fi
 # 4. home（/home）快照配置
 # ------------------------------------------------------------------------------
 # 只在 /home 是独立 btrfs 时做：家目录里才是真正在意的数据
-section "$(t "第 3 步" "Step 3")" "$(t "配置 home 快照" "configure home snapshots")"
+log "$(t "第 3 步：配置 home 快照" "Step 3: configure home snapshots")"
 
 HOME_FSTYPE="$(findmnt -n -o FSTYPE /home 2>/dev/null || true)"
 if [ "$HOME_FSTYPE" != "btrfs" ]; then
     warn "$(t "/home 不是 btrfs（${HOME_FSTYPE:-未知}），跳过 home 快照" "/home is ${HOME_FSTYPE:-unknown}, not btrfs — skipping")"
-    log "$(t "这种情况多半是 /home 就在 root 子卷里，root 快照已经覆盖它" "/home is probably inside the root subvolume — covered by root snapshots")"
+    log "$(t "/home 多半就在 root 子卷里，root 快照已覆盖它" "/home is probably inside the root subvolume — covered by root snapshots")"
 else
     if as_root snapper list-configs 2>/dev/null | grep -q '^home '; then
         success "$(t "home 配置已存在，跳过创建" "home config exists — skipping")"
@@ -238,7 +238,7 @@ fi
 # ------------------------------------------------------------------------------
 # 分三小块，每块都先判断「是不是已经做过」：
 #   5a savedefault（回滚后记住启动项）· 5b grub-btrfs（快照子菜单）· 5c grubenv 环境块
-section "$(t "安全网" "Safety net")" "$(t "GRUB 启动项记忆与快照菜单" "GRUB savedefault + snapshot menu")"
+log "$(t "GRUB 启动项记忆与快照菜单" "GRUB savedefault + snapshot menu")"
 
 if [ "$GRUB_OK" -eq 1 ] && [ -f "/etc/default/grub" ] && command -v grub-mkconfig >/dev/null 2>&1; then
     # NEED_REGEN：这次是不是有必要重新生成 grub.cfg（改过配置、或新装了 grub-btrfs）
@@ -300,7 +300,7 @@ if [ "$GRUB_OK" -eq 1 ] && [ -f "/etc/default/grub" ] && command -v grub-mkconfi
     if has_pkg grub-btrfs; then
         log "$(t "grub-btrfs 已经装过了，跳过" "grub-btrfs already installed — skipping")"
     else
-        log "$(t "装 grub-btrfs（快照子菜单）+ inotify-tools（grub-btrfsd 的依赖），都在官方源" "installing grub-btrfs + inotify-tools from the official repos")"
+        log "$(t "装 grub-btrfs（含快照子菜单）+ inotify-tools（官方源）" "installing grub-btrfs + inotify-tools from the official repos")"
         pac_install grub-btrfs inotify-tools || true
         if has_pkg grub-btrfs; then
             success "$(t "grub-btrfs 装好了" "grub-btrfs installed")"
@@ -374,7 +374,7 @@ if [ "$GRUB_OK" -eq 1 ] && [ -f "/etc/default/grub" ] && command -v grub-mkconfi
             fi
         fi
     elif [ -n "$GRUB_DIR_FSTYPE" ] && [ "$GRUB_DIR_FSTYPE" != "btrfs" ]; then
-        log "$(t "/boot/grub 在 $GRUB_DIR_FSTYPE 上（不是 btrfs），GRUB 能直接写，无需预留环境块" "/boot/grub is on $GRUB_DIR_FSTYPE — GRUB can write directly, no reservation needed")"
+        log "$(t "/boot/grub 在 $GRUB_DIR_FSTYPE 上，GRUB 能直接写，无需预留环境块" "/boot/grub is on $GRUB_DIR_FSTYPE — GRUB can write directly, no reservation needed")"
     fi
 else
     if [ "$GRUB_OK" -eq 0 ]; then
@@ -390,7 +390,7 @@ fi
 # ------------------------------------------------------------------------------
 # 这是本模块的核心产出：后面任何一步（装包、换配置、恢复 dotfiles）翻车都能
 # 回到这个点。幂等判据是「有没有同名的快照描述」，避免重跑一次多一个快照。
-section "$(t "第 4 步" "Step 4")" "$(t "打「装系统之前」的还原点" "snapshot before install")"
+log "$(t "第 4 步：打「装系统之前」的还原点" "Step 4: snapshot before install")"
 
 if as_root snapper list-configs 2>/dev/null | grep -q '^root '; then
     if as_root snapper -c root list --columns description 2>/dev/null | grep -Fqx "$SNAP_ROOT_DESC"; then
@@ -430,16 +430,16 @@ fi
 # ------------------------------------------------------------------------------
 # 7. 收尾：怎么回滚
 # ------------------------------------------------------------------------------
-section "$(t "阶段 0 完成" "Stage 0 done")" "$(t "快照安全网就绪" "snapshot safety net ready")"
+log "$(t "阶段 0 完成：快照安全网就绪" "Stage 0 done: snapshot safety net ready")"
 
-# 【注意】这里必须用 if 不能用 `[ ... ] && info_kv`：脚本开了 set -e，
+# 【注意】这里必须用 if 不能用 `[ ... ] && log`：脚本开了 set -e，
 # 判断为假的 && 列表会返回非零，直接把脚本带崩。
 if [ "$HOME_FSTYPE" = "btrfs" ]; then
-    info_kv "$(t "home 快照配置" "home snapshots")" "snapper -c home" "$(t "描述标记 $SNAP_HOME_DESC" "tag $SNAP_HOME_DESC")"
+    log "$(t "home 快照配置：snapper -c home（描述标记 $SNAP_HOME_DESC）" "home snapshots: snapper -c home (tag $SNAP_HOME_DESC)")"
 else
-    info_kv "$(t "home 快照配置" "home snapshots")" "$(t "无" "none")" "$(t "家目录就在 root 子卷里，root 的快照覆盖它" "home is inside the root subvolume — covered by root snapshots")"
+    log "$(t "home 快照配置：无（家目录就在 root 子卷里，root 快照覆盖它）" "home snapshots: none (home is inside the root subvolume, covered by root snapshots)")"
 fi
-info_kv "$(t "自动快照" "auto snapshots")" "$(t "每小时 3 个" "3 per hour")" "$(t "由 snapper-timeline.timer 负责" "via snapper-timeline.timer")"
+log "$(t "自动快照：每小时 3 个（由 snapper-timeline.timer 负责）" "auto snapshots: 3 per hour (via snapper-timeline.timer)")"
 
 log "$(t "以后怎么退回来：" "how to roll back:")"
 log "  snapper -c root list"

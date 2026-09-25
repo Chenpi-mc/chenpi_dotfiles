@@ -20,7 +20,7 @@ AUR_FALLBACK="${APPS_AUR_FALLBACK:-0}"
 TARGET_HOME="${TARGET_HOME:-$HOME}"
 
 require_arch
-section "$(t "按清单装应用" "Install apps from list")" "$(t "官方源清单 + AUR 清单" "repo + AUR lists")"
+log "$(t "按清单装应用：官方源清单 + AUR 清单" "install apps from list: repo + AUR lists")"
 
 # ------------------------------- 1. 读清单 -------------------------------
 hr
@@ -44,8 +44,8 @@ fi
 
 mapfile -t WANT_REPO < <(read_pkglist "$REPO_LIST")
 mapfile -t WANT_AUR < <(read_pkglist "$AUR_LIST")
-info_kv "$(t "官方源清单" "repo list")" "$(t "${#WANT_REPO[@]} 个包" "${#WANT_REPO[@]} pkgs")" "dotfiles/pkglist.txt"
-info_kv "$(t "AUR 清单" "AUR list")" "$(t "${#WANT_AUR[@]} 个包" "${#WANT_AUR[@]} pkgs")" "dotfiles/pkglist-aur.txt"
+log "$(t "官方源清单：${#WANT_REPO[@]} 个包（dotfiles/pkglist.txt）" "repo list: ${#WANT_REPO[@]} pkgs (dotfiles/pkglist.txt)")"
+log "$(t "AUR 清单：${#WANT_AUR[@]} 个包（dotfiles/pkglist-aur.txt）" "AUR list: ${#WANT_AUR[@]} pkgs (dotfiles/pkglist-aur.txt)")"
 
 if [ ${#WANT_REPO[@]} -eq 0 ] && [ ${#WANT_AUR[@]} -eq 0 ]; then
     warn "$(t "清单是空的（或者整份都被注释掉了），跳过" "lists are empty or fully commented out, skipping")"
@@ -91,9 +91,9 @@ for p in "${WANT_AUR[@]:-}"; do
     fi
 done
 
-info_kv "$(t "源里能装" "from repo")" "$(t "$(( ${#REPO_OK[@]} + ${#AUR_VIA_REPO[@]} )) 个" "$(( ${#REPO_OK[@]} + ${#AUR_VIA_REPO[@]} ))")"
-info_kv "$(t "走 AUR" "via AUR")" "$(t "${#AUR_ONLY[@]} 个" "${#AUR_ONLY[@]}")"
-info_kv "$(t "源里查不到" "not in repo")" "$(t "${#REPO_NO_SOURCE[@]} 个" "${#REPO_NO_SOURCE[@]}")"
+log "$(t "源里能装：$(( ${#REPO_OK[@]} + ${#AUR_VIA_REPO[@]} )) 个" "from repo: $(( ${#REPO_OK[@]} + ${#AUR_VIA_REPO[@]} ))")"
+log "$(t "走 AUR：${#AUR_ONLY[@]} 个" "via AUR: ${#AUR_ONLY[@]}")"
+log "$(t "源里查不到：${#REPO_NO_SOURCE[@]} 个" "not in repo: ${#REPO_NO_SOURCE[@]}")"
 
 # 源里查不到又不在 AUR 清单里的 → 这台机器上没处可装，只提示不报错
 UNKNOWN_PKGS=()
@@ -141,7 +141,7 @@ fi
 
 # ------------------------------- 4. 核对与汇总 -------------------------------
 hr
-section "$(t "结果核对" "Result check")" "$(t "逐个确认清单上的包在不在" "check every listed package")"
+log "$(t "结果核对：逐个确认清单上的包在不在" "result check: verify every listed package")"
 
 OK_PKGS=()    # 已经装上了
 FAIL_PKGS=()  # 试过但没装上
@@ -210,7 +210,7 @@ fi
 
 # ------------------------------- 收尾 -------------------------------
 hr
-section "$(t "完成" "Done")" "$(t "应用清单" "app list")"
+log "$(t "完成：应用清单" "done: app list")"
 
 if [ ${#FAIL_PKGS[@]} -eq 0 ] && [ ${#SKIP_PKGS[@]} -eq 0 ]; then
     success "$(t "清单上的包全部到位（${#OK_PKGS[@]} 个）" "all listed packages installed (${#OK_PKGS[@]})")"

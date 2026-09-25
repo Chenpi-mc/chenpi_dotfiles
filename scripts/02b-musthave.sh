@@ -15,7 +15,7 @@ source "$SCRIPT_DIR/00-utils.sh"
 # ==============================================================================
 
 # 0. 前置检查
-section "$(t "02b · 准备" "02b · Prep")" "$(t "环境确认" "Environment check")"
+log "$(t "02b · 准备" "02b · Prep") — $(t "环境确认" "Environment check")"
 
 # TARGET_USER / TARGET_HOME / RUN_AS_ROOT 由 install.sh 检测并 export。
 # 这里只检查不重建：as_user 拿到空值会报莫名其妙的错。
@@ -24,11 +24,11 @@ if [ -z "${TARGET_USER:-}" ] || [ -z "${TARGET_HOME:-}" ]; then
     exit 1
 fi
 
-info_kv "$(t "目标用户" "Target user")" "$TARGET_USER" "$TARGET_HOME"
-info_kv "$(t "仓库根目录" "Repo root")" "$REPO_ROOT"
+log "$(t "目标用户" "Target user"): $TARGET_USER ($TARGET_HOME)"
+log "$(t "仓库根目录" "Repo root"): $REPO_ROOT"
 
 # 1. 音频：固件 + PipeWire
-section "$(t "02b · 步骤 1/7" "02b · Step 1/7")" "$(t "音频固件与 PipeWire" "Audio firmware & PipeWire")"
+log "$(t "02b · 步骤 1/7" "02b · Step 1/7") — $(t "音频固件与 PipeWire" "Audio firmware & PipeWire")"
 
 # sof-firmware 缺了的话声卡只剩 dummy 输出（没声音）
 log "$(t "装音频固件" "Installing audio firmware")"
@@ -50,7 +50,7 @@ as_root systemctl --global enable pipewire pipewire-pulse wireplumber \
 success "$(t "音频栈就绪" "Audio stack ready")"
 
 # 2. 输入法：Fcitx5 + Rime
-section "$(t "02b · 步骤 2/7" "02b · Step 2/7")" "$(t "输入法（Fcitx5 + Rime）" "Input method (Fcitx5 + Rime)")"
+log "$(t "02b · 步骤 2/7" "02b · Step 2/7") — $(t "输入法（Fcitx5 + Rime）" "Input method (Fcitx5 + Rime)")"
 
 # 家目录配置里默认输入法就是 rime（.config/fcitx5/profile），所以装本体 + rime 引擎。
 # 只用官方源的稳定版，不装第三方魔改补丁包。
@@ -71,7 +71,7 @@ fi
 success "$(t "输入法就绪（方案 rime）" "Input method ready (rime)")"
 
 # 3. 蓝牙：检测不到硬件就不装
-section "$(t "02b · 步骤 3/7" "02b · Step 3/7")" "$(t "蓝牙（按硬件决定）" "Bluetooth (if present)")"
+log "$(t "02b · 步骤 3/7" "02b · Step 3/7") — $(t "蓝牙（按硬件决定）" "Bluetooth (if present)")"
 
 # lsusb / lspci 可能还没装，先补齐检测工具
 pac_install usbutils pciutils || true
@@ -98,7 +98,7 @@ else
 fi
 
 # 4. 电源管理
-section "$(t "02b · 步骤 4/7" "02b · Step 4/7")" "$(t "电源管理" "Power management")"
+log "$(t "02b · 步骤 4/7" "02b · Step 4/7") — $(t "电源管理" "Power management")"
 
 if has_pkg tlp; then
     # tlp 和 power-profiles-daemon 抢同一套电源接口，不能共存
@@ -111,7 +111,7 @@ fi
 success "$(t "电源配置就绪（awob 的监听器依赖它）" "Power ready (awob listeners need it)")"
 
 # 5. 常用命令行工具（含 AMD 平台检测）
-section "$(t "02b · 步骤 5/7" "02b · Step 5/7")" "$(t "常用命令行工具" "Command-line tools")"
+log "$(t "02b · 步骤 5/7" "02b · Step 5/7") — $(t "常用命令行工具" "Command-line tools")"
 
 pac_install fastfetch gdu btop cmatrix lolcat sl || true
 
@@ -125,7 +125,7 @@ fi
 success "$(t "命令行工具就绪" "CLI tools ready")"
 
 # 6. pacman 彩色输出（改 /etc/pacman.conf，改前备份）
-section "$(t "02b · 步骤 6/7" "02b · Step 6/7")" "$(t "pacman 彩色输出" "pacman color output")"
+log "$(t "02b · 步骤 6/7" "02b · Step 6/7") — $(t "pacman 彩色输出" "pacman color output")"
 
 PACMAN_CONF=/etc/pacman.conf
 PACMAN_BAK=/etc/pacman.conf.chenpi.bak
@@ -164,11 +164,11 @@ else
 
     # 幂等校验：这两个关键字各留一行就够（正常应该 2 行）
     KEY_LINES="$(grep -cE '^[[:space:]]*(Color|ILoveCandy)[[:space:]]*$' "$PACMAN_CONF" || true)"
-    info_kv "$(t "关键字行数" "Key lines")" "$KEY_LINES" "$(t "正常应为 2" "expected 2")"
+    log "$(t "关键字行数" "Key lines"): $KEY_LINES（$(t "正常应为 2" "expected 2")）"
 fi
 
 # 7. Flatpak
-section "$(t "02b · 步骤 7/7" "02b · Step 7/7")" "Flatpak"
+log "$(t "02b · 步骤 7/7" "02b · Step 7/7") — Flatpak"
 
 pac_install flatpak || true
 
@@ -181,7 +181,7 @@ if command -v flatpak >/dev/null 2>&1; then
 
     # 国内直连 flathub 慢，但换镜像影响面大（各镜像同步进度不一），只提示不自动改
     if [ "$(readlink -f /etc/localtime 2>/dev/null || true)" = "/usr/share/zoneinfo/Asia/Shanghai" ]; then
-        info_kv "$(t "区域" "Region")" "Asia/Shanghai" "$(t "国内环境" "China")"
+        log "$(t "区域" "Region"): Asia/Shanghai（$(t "国内环境" "China")）"
         log "$(t "拉取慢可换镜像：flatpak remote-modify flathub --url=<sjtu 镜像>" "Slow? flatpak remote-modify flathub --url=<sjtu mirror>")"
     fi
 else
@@ -189,7 +189,7 @@ else
 fi
 
 # 收尾
-section "$(t "02b 完成" "02b Done")" "$(t "必需品与顺手配置" "Must-haves and extras")"
+log "$(t "02b 完成" "02b Done") — $(t "必需品与顺手配置" "Must-haves and extras")"
 success "$(t "音频 / 输入法 / 蓝牙 / 电源 / 工具 / pacman 外观 / Flatpak 都处理完了" "Audio / IME / BT / power / tools / pacman / Flatpak done")"
 info_kv "$(t "日志" "Log")" "${LOG_FILE:-}" ""
 log "$(t "没装上的包都登记在 ${VERIFY_LIST:-}，05-verify.sh 统一对账" "Failed pkgs logged in ${VERIFY_LIST:-} for 05-verify.sh")"

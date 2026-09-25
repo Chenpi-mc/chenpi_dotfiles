@@ -33,7 +33,7 @@ BACKUP_HOME=""
 BACKUP_ETC=""
 
 # ---- 1. 备份现有配置 ----
-section "$(t "备份现有配置" "Back up config")" "$(t "覆盖前先备份" "backup first")"
+log "$(t "备份现有配置（覆盖前先备份）" "back up current config (backup first)")"
 
 backup_items=()
 for i in .config .vim .icons .themes "$WALLPAPER_DIR" \
@@ -69,7 +69,7 @@ if [ ${#etc_backup_items[@]} -gt 0 ]; then
 fi
 
 # ---- 2. 恢复 .config ----
-section "$(t "恢复 .config" "Restore .config")" "$(t "清单里 ${#CONFIG_APPS[@]} 项" "${#CONFIG_APPS[@]} items listed")"
+log "$(t "恢复 .config（清单里 ${#CONFIG_APPS[@]} 项）" "restore .config (${#CONFIG_APPS[@]} items listed)")"
 
 as_user mkdir -p "$TARGET_HOME/.config"
 
@@ -92,7 +92,7 @@ if [ ${#missing[@]} -gt 0 ]; then
 fi
 
 # ---- 3. 恢复顶层 dotfile 和目录 ----
-section "$(t "恢复顶层配置" "Restore top-level")" "$(t "dotfile 和目录" "dotfiles and dirs")"
+log "$(t "恢复顶层配置（dotfile 和目录）" "restore top-level dotfiles and dirs")"
 
 file_n=0
 for f in "${TOP_FILES[@]}"; do
@@ -125,7 +125,7 @@ done
 success "$(t "顶层目录恢复 $dir_n 个" "top-level dirs restored: $dir_n")"
 
 # ---- 4. 恢复壁纸 ----
-section "$(t "恢复壁纸" "Restore wallpapers")" "$WALLPAPER_DIR"
+log "$(t "恢复壁纸：$WALLPAPER_DIR" "restore wallpapers: $WALLPAPER_DIR")"
 
 if [ -d "$SRC/$WALLPAPER_DIR" ]; then
     as_user mkdir -p "$TARGET_HOME/$(dirname "$WALLPAPER_DIR")"
@@ -137,7 +137,7 @@ else
 fi
 
 # ---- 5. 恢复 /etc 下的系统配置（sddm 之类） ----
-section "$(t "恢复系统级配置" "Restore system config")" "$(t "/etc 下的文件" "files under /etc")"
+log "$(t "恢复系统级配置（/etc 下的文件）" "restore system config (files under /etc)")"
 
 etc_n=0
 for i in "${ETC_FILES[@]}"; do
@@ -152,7 +152,7 @@ success "$(t "系统级配置恢复 $etc_n 个文件" "system config restored: $
 
 # ---- 6. root 跑的话把属主改回目标用户 ----
 if [ "$RUN_AS_ROOT" -eq 1 ]; then
-    section "$(t "修正文件属主" "Fix file ownership")" "$(t "以 root 运行，属主要改回去" "running as root, fix the owner")"
+    log "$(t "修正文件属主（以 root 运行，属主要改回去）" "fix file ownership (running as root, fix the owner)")"
     fix_owner "$TARGET_HOME/.config" "$TARGET_HOME/$WALLPAPER_DIR"
     for i in "${TOP_FILES[@]}" "${TOP_DIRS[@]}"; do
         fix_owner "$TARGET_HOME/$i"
@@ -161,7 +161,7 @@ if [ "$RUN_AS_ROOT" -eq 1 ]; then
 fi
 
 # ---- 7. 显示管理器检查 ----
-section "$(t "显示管理器检查" "Display manager check")" "$(t "多个 DM 会互抢显示权限" "multiple DMs conflict")"
+log "$(t "显示管理器检查（多个 DM 会互抢显示权限）" "display manager check (multiple DMs conflict)")"
 
 check_dm_conflict
 if [ -n "${DM_ENABLED:-}" ]; then
@@ -174,7 +174,7 @@ else
 fi
 
 # ---- 汇总 ----
-section "$(t "配置恢复完成" "Restore complete")" ""
+log "$(t "配置恢复完成" "restore complete")"
 
 info_kv "$(t "配置目录" "config dir")" "$TARGET_HOME/.config" "$(ls "$TARGET_HOME/.config" 2>/dev/null | wc -l || true) $(t "项" "entries")"
 info_kv "$(t "壁纸目录" "wallpaper dir")" "$TARGET_HOME/$WALLPAPER_DIR" ""
