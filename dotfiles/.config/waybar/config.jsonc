@@ -15,6 +15,8 @@
         "niri/window"
     ],
     "modules-center": [
+        "group/actions",
+        "custom/colorpicker",
         "power-profiles-daemon",
         "idle_inhibitor",
         "clock",
@@ -272,5 +274,56 @@
         "tooltip-format": "左键点击显示电源菜单",
         "format": "󰐥",
         "on-click": "bash ~/.config/niri/scripts/powermenu"
+    },
+
+    // ---------- 常用命令 group ----------
+    "group/actions": {
+        "orientation": "inherit",
+        "drawer": {
+            "transition-left-to-right": false
+        },
+        "modules": [
+            "custom/actions",
+            "custom/wfrec",
+            "custom/screenshot",
+            "custom/clipboard"
+        ]
+    },
+    "custom/actions": {
+        "format": "",
+        "tooltip-format": "左键：常用命令",
+        "on-click": "~/.config/waybar/scripts/command-center.sh"
+    },
+    "custom/wfrec": {
+        "exec": "~/.config/waybar/scripts/screenrec status-json",
+        "return-type": "json",
+        "signal": 9,
+        "tooltip": true,
+        "on-click": "shorin-screenrec-menu toggle",
+        "on-click-right": "shorin-screenrec-menu stop"
+    },
+    "custom/screenshot": {
+        "format": "",
+        "tooltip-format": "左键：快速截图（仅保存到剪贴板）\n右键：打开长截图菜单\n中键：打开截图菜单",
+        "on-click": "~/.config/waybar/scripts/screenshot.sh",
+        "on-click-middle": "~/.config/waybar/scripts/power-screenshot.sh",
+        "on-click-right": "wl-longshot-menu"
+    },
+    "custom/clipboard": {
+        "format": "󰅍",
+        "on-click": "kitty --class cliphist-tui -e cliphist-tui",
+        "on-click-middle": "pkill wl-paste || true && wl-paste --watch cliphist store && sleep 0.5 && systemctl restart --user clipsync-git",
+        "on-click-right": "rm -f ~/.cache/cliphist/db",
+        "tooltip-format": "左键：打开剪贴板\n右键：清除剪贴板历史\n中键：重启剪贴板后台服务"
+    },
+
+    // ---------- 取色器 ----------
+    "custom/colorpicker": {
+        "tooltip": true,
+        "format": "󱏜",
+        "on-click": "hyprpicker -a && pw-play /usr/share/sounds/freedesktop/stereo/message.oga",
+        "on-click-middle": "~/.config/scripts/matugen-select-type.sh",
+        "on-click-right": "waypaper",
+        "tooltip-format": "左键：提取颜色\n右键：打开壁纸切换器\n中键：切换系统配置方案"
     }
 }
